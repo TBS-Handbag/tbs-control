@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import type { IconType } from 'react-icons';
-import { LuArrowUpRight } from 'react-icons/lu';
-import { STATUS_STYLE, StatusPill } from '@/components/machines/status-pill';
+import { LuChevronRight } from 'react-icons/lu';
+import { STATUS_STYLE } from '@/components/machines/status-pill';
 import type { Status } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
 type Props = {
     href: string;
-    index: number;
     title: string;
     meta: string;
     icon: IconType;
@@ -16,50 +15,44 @@ type Props = {
     stop: number;
 };
 
-export function AreaCard({ href, index, title, meta, icon: Icon, run, idle, stop }: Props) {
-    // mỗi vạch = 1 máy, xếp theo trạng thái để nhìn là thấy tỉ lệ
-    const ticks: Status[] = [
-        ...Array<Status>(run).fill('run'),
-        ...Array<Status>(idle).fill('idle'),
-        ...Array<Status>(stop).fill('stop'),
+export function AreaCard({ href, title, meta, icon: Icon, run, idle, stop }: Props) {
+    const counts: [Status, number, string][] = [
+        ['run', run, 'chạy'],
+        ['idle', idle, 'chờ'],
+        ['stop', stop, 'dừng'],
     ];
+    // mỗi vạch = 1 máy, xếp theo trạng thái
+    const ticks = counts.flatMap(([s, n]) => Array<Status>(n).fill(s));
 
     return (
         <Link
             href={href}
-            className="group relative flex flex-col gap-4 bg-card shadow-main/20 shadow-xl p-5 border border-line rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring w-full overflow-hidden active:scale-[0.98] transition-transform"
+            className="flex flex-col gap-4 bg-card p-4 border border-line rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring w-full"
         >
-            <span
-                aria-hidden="true"
-                className="-top-5 -right-1 absolute font-black text-main/5 text-9xl leading-none tracking-tighter select-none"
-            >
-                {String(index).padStart(2, '0')}
-            </span>
-
-            <span className="relative flex items-start gap-3">
-                <span className="flex justify-center items-center bg-main rounded-2xl size-12 text-white shrink-0">
-                    <Icon aria-hidden="true" className="size-6" />
+            <span className="flex items-center gap-3">
+                <span className="flex justify-center items-center bg-main-tint rounded-xl size-11 text-main shrink-0">
+                    <Icon aria-hidden="true" className="size-5" />
                 </span>
-                <span className="flex flex-col flex-1 gap-1 min-w-0">
-                    <span className="font-semibold text-main-muted text-xs tracking-widest">KHU VỰC {index}</span>
-                    <span className="font-bold text-mainText text-xl leading-tight">{title}</span>
+                <span className="flex flex-col flex-1 min-w-0">
+                    <span className="font-semibold text-mainText text-lg leading-tight">{title}</span>
                     <span className="text-subText text-sm">{meta}</span>
                 </span>
-                <span className="flex justify-center items-center border border-line rounded-full size-10 text-main group-hover:rotate-45 group-hover:bg-main group-hover:text-white transition shrink-0">
-                    <LuArrowUpRight aria-hidden="true" className="size-5" />
-                </span>
+                <LuChevronRight aria-hidden="true" className="text-iconMuted size-5 shrink-0" />
             </span>
 
-            <span aria-hidden="true" className="relative flex gap-1">
+            <span aria-hidden="true" className="flex gap-0.5">
                 {ticks.map((s, i) => (
-                    <span key={i} className={cn('flex-1 rounded-full h-2', STATUS_STYLE[s].dot)} />
+                    <span key={i} className={cn('flex-1 rounded-full h-1.5', STATUS_STYLE[s].dot)} />
                 ))}
             </span>
 
-            <span className="relative flex flex-wrap gap-1.5">
-                <StatusPill status="run" label={`${run} đang chạy`} className="py-0.5" />
-                <StatusPill status="idle" label={`${idle} hết lệnh chờ`} className="py-0.5" />
-                <StatusPill status="stop" label={`${stop} dừng`} className="py-0.5" />
+            <span className="flex gap-4 text-subText text-sm">
+                {counts.map(([s, n, label]) => (
+                    <span key={s} className="flex items-center gap-1.5">
+                        <span aria-hidden="true" className={cn('rounded-full size-2', STATUS_STYLE[s].dot)} />
+                        <span className="font-semibold text-mainText">{n}</span> {label}
+                    </span>
+                ))}
             </span>
         </Link>
     );
