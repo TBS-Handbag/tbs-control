@@ -21,7 +21,12 @@ export function TvClock() {
             </time>
             <span className="text-onMainSub text-base first-letter:uppercase">
                 {now
-                    ? now.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: TZ })
+                    ? now.toLocaleDateString('vi-VN', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          timeZone: TZ,
+                      })
                     : ' '}
             </span>
         </div>

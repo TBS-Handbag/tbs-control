@@ -31,7 +31,7 @@ export default function TvPage() {
                     <div className="flex-1 gap-3 grid grid-rows-3 min-h-0">
                         {CUT_GROUPS.map((g) => (
                             <div key={g} className="flex flex-col gap-1.5 min-h-0">
-                                <h3 className="font-semibold text-labelText text-lg shrink-0">{g}</h3>
+                                <h3 className="font-semibold text-labelText text-xl shrink-0">{g}</h3>
                                 <div className="flex-1 gap-3 grid grid-cols-3 min-h-0">
                                     {cut
                                         .filter((m) => m.group === g)
