@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { LuChevronRight } from 'react-icons/lu';
 import { PageHeader } from '@/components/machines/page-header';
 import { StatusPill } from '@/components/machines/status-pill';
-import { AREAS, CUT_GROUPS, machinesByArea } from '@/lib/data/machines';
+import { AREAS, CUT_GROUPS, machinesByArea, statusOf } from '@/lib/data/machines';
 
 export default function CutAreaPage() {
     const machines = machinesByArea('cut');
@@ -39,7 +39,7 @@ export default function CutAreaPage() {
                                                         : 'Không có lệnh chờ'}
                                                 </span>
                                             </span>
-                                            <StatusPill running={m.running} />
+                                            <StatusPill status={statusOf(m)} />
                                             <LuChevronRight
                                                 aria-hidden="true"
                                                 className="size-5 text-iconMuted shrink-0"

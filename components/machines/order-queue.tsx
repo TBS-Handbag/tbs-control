@@ -155,7 +155,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                 // pill + nút dừng xếp thành 1 khối cùng bề rộng ở cột phải
                                                 <div className="flex flex-col items-stretch gap-1.5 shrink-0">
                                                     <StatusPill
-                                                        running
+                                                        status="run"
                                                         label="Đang chạy"
                                                         className="justify-center px-3 py-1.5 font-medium text-sm"
                                                     />

@@ -42,7 +42,8 @@ export const AREAS = {
 } as const;
 
 const pad = (n: number) => String(n).padStart(2, '0');
-const iso = (min: number) => `2026-10-${pad(28 + Math.floor(min / 1440))}T${pad(Math.floor((min % 1440) / 60))}:${pad(min % 60)}`;
+const iso = (min: number) =>
+    `2026-10-${pad(28 + Math.floor(min / 1440))}T${pad(Math.floor((min % 1440) / 60))}:${pad(min % 60)}`;
 
 let seq = 2600;
 function makeMachine(
@@ -55,9 +56,12 @@ function makeMachine(
     queueSize: number,
     startHour: number,
 ): Machine {
-    const current = hasCurrent ? { code: `L${++seq}`, start: iso(startHour * 60), end: iso(startHour * 60 + 120) } : null;
-    let t = current ? startHour * 60 + 120 : 13 * 60;
-    const queue = Array.from({ length: queueSize }, () => {
+    const current = hasCurrent
+        ? { code: `L${++seq}`, start: iso(startHour * 60), end: iso(startHour * 60 + 120) }
+        : null;
+    let t = startHour * 60 + 120;
+    // máy dừng = hết lệnh, nên không có lệnh hiện tại thì cũng không có lệnh chờ
+    const queue = Array.from({ length: current ? queueSize : 0 }, () => {
         const order = { code: `L${++seq}`, start: iso(t), end: iso(t + 90) };
         t += 90;
         return order;
@@ -70,13 +74,21 @@ const STOPPED_PRESS = [4, 9, 15];
 
 export const MACHINES: Machine[] = [
     ...Array.from({ length: 18 }, (_, i) =>
-        makeMachine(`P${pad(i + 1)}`, `Máy ${pad(i + 1)}`, pad(i + 1), 'press', 'Chặt thủy lực', !STOPPED_PRESS.includes(i + 1), ((i + 1) * 7) % 5, 6 + ((i + 1) % 3)),
+        makeMachine(
+            `P${pad(i + 1)}`,
+            `Máy ${pad(i + 1)}`,
+            pad(i + 1),
+            'press',
+            'Chặt thủy lực',
+            !STOPPED_PRESS.includes(i + 1),
+            ((i + 1) * 7) % 5,
+            6 + ((i + 1) % 3),
+        ),
     ),
     makeMachine('trai-td1', 'Trải TĐ 1', 'TĐ 1', 'cut', 'Trải', true, 3, 6),
     makeMachine('trai-td2', 'Trải TĐ 2', 'TĐ 2', 'cut', 'Trải', true, 1, 7),
-    makeMachine('trai-tc', 'Trải TC', 'TC', 'cut', 'Trải', false, 2, 0),
+    makeMachine('trai-tc', 'Trải TC', 'TC', 'cut', 'Trải', false, 0, 0),
     makeMachine('cat-td', 'Cắt TĐ', 'TĐ', 'cut', 'Cắt', true, 2, 6),
-    makeMachine('cat-tc', 'Cắt TC', 'TC', 'cut', 'Cắt', true, 0, 8),
     makeMachine('bullmer-1', 'Bullmer 1', '1', 'cut', 'Bullmer', true, 4, 6),
     makeMachine('bullmer-2', 'Bullmer 2', '2', 'cut', 'Bullmer', false, 0, 0),
 ];
@@ -87,9 +99,15 @@ export const machinesByArea = (area: Area) => MACHINES.filter((m) => m.area === 
 
 export const getMachine = (id: string) => MACHINES.find((m) => m.id === id);
 
+/** run: đang chạy và còn lệnh chờ · idle: đang chạy lệnh cuối · stop: không có lệnh */
+export type Status = 'run' | 'idle' | 'stop';
+
+export const statusOf = (m: Machine): Status => (!m.current ? 'stop' : m.queue.length ? 'run' : 'idle');
+
 export function stat(list: Machine[]) {
-    const run = list.filter((m) => m.running).length;
-    return { total: list.length, run, stop: list.length - run };
+    const count = (s: Status) => list.filter((m) => statusOf(m) === s).length;
+    const stop = count('stop');
+    return { total: list.length, active: list.length - stop, run: count('run'), idle: count('idle'), stop };
 }
 
 const MINUTE = 60000;

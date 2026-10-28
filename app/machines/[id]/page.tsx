@@ -5,7 +5,7 @@ import { OrderQueue } from '@/components/machines/order-queue';
 import { PageHeader } from '@/components/machines/page-header';
 import { StatusPill } from '@/components/machines/status-pill';
 import { WorkerList } from '@/components/machines/worker-list';
-import { AREAS, MACHINES, WORKER_ROLES, getMachine } from '@/lib/data/machines';
+import { AREAS, MACHINES, WORKER_ROLES, getMachine, statusOf } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
 export function generateStaticParams() {
@@ -27,8 +27,8 @@ export default async function MachineDetailPage({ params }: PageProps<'/machines
                     {/* không wrap cả dòng để vạch ngăn luôn nằm cạnh pill; màn hẹp thì chữ khu vực tự xuống dòng */}
                     <div className="flex items-center gap-3">
                         <StatusPill
-                            running={m.running}
-                            label={m.running ? 'Đang hoạt động' : 'Dừng'}
+                            status={statusOf(m)}
+                            label={statusOf(m) === 'run' ? 'Đang hoạt động' : undefined}
                             className="px-3 py-1.5 font-medium text-sm"
                         />
                         <span className="pl-3 border-line border-l min-w-0 text-subText text-sm">

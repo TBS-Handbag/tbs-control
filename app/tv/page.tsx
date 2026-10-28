@@ -18,7 +18,7 @@ export default function TvPage() {
                 <h1 className="font-bold text-3xl">Bảng ĐH & PP lệnh CUT 1</h1>
                 <span className="flex items-center gap-2 bg-main-soft px-4 py-1.5 rounded-full font-medium text-lg">
                     <span aria-hidden="true" className="bg-run-light rounded-full size-2.5" />
-                    {total.run}/{total.total} máy đang chạy
+                    {total.active}/{total.total} máy đang chạy
                 </span>
                 <div className="ml-auto">
                     <TvClock />

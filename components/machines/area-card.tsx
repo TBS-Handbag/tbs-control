@@ -10,10 +10,11 @@ type Props = {
     meta: string;
     icon: IconType;
     run: number;
+    idle: number;
     stop: number;
 };
 
-export function AreaCard({ href, index, title, meta, icon: Icon, run, stop }: Props) {
+export function AreaCard({ href, index, title, meta, icon: Icon, run, idle, stop }: Props) {
     return (
         <Link
             href={href}
@@ -27,8 +28,9 @@ export function AreaCard({ href, index, title, meta, icon: Icon, run, stop }: Pr
                 <span className="font-bold text-main text-xl leading-tight">{title}</span>
                 <span className="text-sm text-subText">{meta}</span>
                 <span className="flex flex-wrap gap-1.5 mt-0.5">
-                    <StatusPill running label={`${run} đang chạy`} className="py-0.5" />
-                    <StatusPill running={false} label={`${stop} dừng`} className="py-0.5" />
+                    <StatusPill status="run" label={`${run} đang chạy`} className="py-0.5" />
+                    <StatusPill status="idle" label={`${idle} hết lệnh chờ`} className="py-0.5" />
+                    <StatusPill status="stop" label={`${stop} dừng`} className="py-0.5" />
                 </span>
             </span>
             <LuChevronRight aria-hidden="true" className="text-iconMuted size-6 shrink-0" />

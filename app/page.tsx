@@ -32,7 +32,7 @@ export default function Home() {
                 </div>
                 <span className="flex items-center self-start gap-2 bg-main-soft px-3 py-1.5 rounded-full font-medium text-sm">
                     <span aria-hidden="true" className="bg-run-light rounded-full size-2" />
-                    {total.run}/{total.total} máy đang chạy
+                    {total.active}/{total.total} máy đang chạy
                 </span>
             </div>
 
@@ -44,6 +44,7 @@ export default function Home() {
                     meta={`${CUT_GROUPS.length} nhóm · ${cut.total} máy`}
                     icon={LuLayers}
                     run={cut.run}
+                    idle={cut.idle}
                     stop={cut.stop}
                 />
                 <AreaCard
@@ -53,6 +54,7 @@ export default function Home() {
                     meta={`${press.total} máy`}
                     icon={LuStamp}
                     run={press.run}
+                    idle={press.idle}
                     stop={press.stop}
                 />
                 <p className="mx-1 mt-1.5 text-subText text-sm text-center leading-normal">

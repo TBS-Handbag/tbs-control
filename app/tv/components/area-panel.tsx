@@ -20,9 +20,10 @@ export function AreaPanel({ area, children }: { area: Area; children: ReactNode 
                         {AREAS[area].title}
                     </h2>
                 </div>
-                <StatusPill running label={`${s.run} đang chạy`} className="px-3 text-lg" />
-                <StatusPill running={false} label={`${s.stop} dừng`} className="px-3 text-lg" />
-                <span className="bg-main-tint px-3 py-1 rounded-full font-semibold text-main text-lg shrink-0">
+                <StatusPill solid status="run" label={`${s.run} đang chạy`} className="px-3 font-bold text-lg" />
+                <StatusPill solid status="idle" label={`${s.idle} hết lệnh chờ`} className="px-3 font-bold text-lg" />
+                <StatusPill solid status="stop" label={`${s.stop} dừng`} className="px-3 font-bold text-lg" />
+                <span className="bg-main px-3 py-1 rounded-full font-bold text-white text-lg shrink-0">
                     {queued} lệnh chờ
                 </span>
             </header>

@@ -37,6 +37,13 @@ export default {
           fg: "hsl(var(--run-fg))",
           light: "hsl(var(--run-light))",
         },
+        idle: {
+          DEFAULT: "hsl(var(--idle))",
+          bg: "hsl(var(--idle-bg))",
+          fg: "hsl(var(--idle-fg))",
+          cell: "hsl(var(--idle-cell))",
+          line: "hsl(var(--idle-line))",
+        },
         stop: {
           DEFAULT: "hsl(var(--stop))",
           bg: "hsl(var(--stop-bg))",

@@ -22,11 +22,16 @@
     --run-bg: 142.5 40% 92.2%; /* #E3F3E9 */
     --run-fg: 149.4 81.4% 23.1%; /* #0B6B3A */
     --run-light: 141.9 69.2% 58%; /* #4ADE80 - chấm sáng trên nền main */
-    --stop: 24.6 95% 53.1%; /* #F97316 */
-    --stop-bg: 34.3 100% 91.8%; /* #FFEDD5 */
-    --stop-fg: 15 74.6% 30.6%; /* #9A3412 */
-    --stop-cell: 33.3 100% 96.5%; /* #FFF7ED */
-    --stop-line: 30.7 97.2% 72.4%; /* #FDBA74 */
+    --idle: 47.9 95.8% 53.1%; /* #FACC15 - đang chạy lệnh cuối, hết lệnh chờ; vàng tách hẳn đỏ khi nhìn xa */
+    --idle-bg: 48 96.5% 88.8%; /* #FEF3C7 */
+    --idle-fg: 22.7 82.5% 31.4%; /* #92400E */
+    --idle-cell: 48 100% 96.1%; /* #FFFBEB */
+    --idle-line: 45.9 96.7% 64.5%; /* #FCD34D */
+    --stop: 0 72.2% 50.6%; /* #DC2626 */
+    --stop-bg: 0 93.3% 94.1%; /* #FEE2E2 */
+    --stop-fg: 0 70% 35.3%; /* #991B1B */
+    --stop-cell: 0 85.7% 97.3%; /* #FEF2F2 */
+    --stop-line: 0 93.5% 81.8%; /* #FCA5A5 */
 
     /* shadcn tokens map về brand */
     --background: 0 0% 100%;
