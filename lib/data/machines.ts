@@ -92,6 +92,25 @@ export function stat(list: Machine[]) {
     return { total: list.length, run, stop: list.length - run };
 }
 
+const MINUTE = 60000;
+// Date -> "2026-10-28T06:00" theo giờ local, cùng định dạng với dữ liệu lệnh
+const toIso = (d: Date) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+/**
+ * Dừng sớm lệnh đang chạy lúc `now`: lệnh chờ #1 chạy ngay, cả hàng chờ dời theo cùng độ lệch
+ * (giữ nguyên thời lượng và khoảng nghỉ giữa các lệnh). Hết lệnh chờ thì máy dừng.
+ */
+export function stopEarly(current: Order, queue: Order[], now: Date): { current: Order | null; queue: Order[] } {
+    if (!queue.length) return { current: null, queue: [] };
+    // làm tròn xuống phút; đồng hồ lệch trước giờ bắt đầu thì coi như dừng ngay lúc bắt đầu
+    const stopAt = Math.max(Math.floor(now.getTime() / MINUTE) * MINUTE, new Date(current.start).getTime());
+    const delta = stopAt - new Date(queue[0].start).getTime();
+    const move = (s: string) => toIso(new Date(new Date(s).getTime() + delta));
+    const [next, ...rest] = queue.map((o) => ({ ...o, start: move(o.start), end: move(o.end) }));
+    return { current: next, queue: rest };
+}
+
 /** "2026-10-28T06:00" -> { time: "06:00", date: "28/10/2026" } */
 export function formatDateTime(s?: string) {
     if (!s) return { time: '—', date: '' };

@@ -32,8 +32,8 @@ export function MachineNameEditor({ initialName }: { initialName: string }) {
 
     if (!editing) {
         return (
-            <div className="flex items-center gap-2.5">
-                <span className="flex-1 min-w-0 font-bold text-main text-2xl break-words leading-tight">{name}</span>
+            <div className="flex items-center gap-2">
+                <span className="flex-1 min-w-0 font-bold text-xl break-words leading-tight">{name}</span>
                 <Button
                     ref={editBtn}
                     type="button"
@@ -41,7 +41,7 @@ export function MachineNameEditor({ initialName }: { initialName: string }) {
                     size="icon"
                     aria-label="Sửa tên máy"
                     onClick={open}
-                    className="border-line-strong rounded-xl size-11 text-main"
+                    className="border-line-strong rounded-xl size-9 text-main hover:text-main shrink-0"
                 >
                     <FaPencil aria-hidden="true" />
                 </Button>

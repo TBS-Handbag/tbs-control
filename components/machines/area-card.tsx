@@ -17,10 +17,10 @@ export function AreaCard({ href, index, title, meta, icon: Icon, run, stop }: Pr
     return (
         <Link
             href={href}
-            className="flex items-center gap-4 bg-card shadow-lg shadow-main/10 py-5 pr-4 pl-5 border border-line rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring w-full min-h-32"
+            className="flex items-center gap-3 bg-card shadow-lg shadow-main/10 py-5 pr-3 pl-4 border border-line rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring w-full min-h-32"
         >
-            <span className="flex justify-center items-center bg-main-tint rounded-2xl size-14 text-main shrink-0">
-                <Icon aria-hidden="true" className="size-7" />
+            <span className="flex justify-center items-center bg-main-tint rounded-xl size-12 text-main shrink-0">
+                <Icon aria-hidden="true" className="size-6" />
             </span>
             <span className="flex flex-col flex-1 gap-1.5 min-w-0">
                 <span className="font-semibold text-main-muted text-xs tracking-wider">KHU VỰC {index}</span>

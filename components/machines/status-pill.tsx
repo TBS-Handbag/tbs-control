@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
 
-type Props = { running: boolean; label?: string; className?: string };
+type Props = { running: boolean; label?: string; dot?: boolean; className?: string };
 
-export function StatusPill({ running, label, className }: Props) {
+export function StatusPill({ running, label, dot, className }: Props) {
     return (
         <span
             className={cn(
@@ -11,6 +11,7 @@ export function StatusPill({ running, label, className }: Props) {
                 className,
             )}
         >
+            {dot && <span aria-hidden="true" className={cn('rounded-full size-2 shrink-0', running ? 'bg-run' : 'bg-stop')} />}
             {label ?? (running ? 'Đang chạy' : 'Dừng')}
         </span>
     );

@@ -91,3 +91,19 @@
     @apply bg-surface text-foreground;
   }
 }
+
+@layer utilities {
+  /* vùng vuốt ngang trên mobile: vẫn cuộn được nhưng không hiện thanh cuộn */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Màn hình TV: font gốc co theo viewport (16px ở 1920×1080 và 1920×1200) để mọi rem của Tailwind scale theo, không cuộn */
+html:has(.tv-screen) {
+  font-size: min(0.8333vw, 1.4815vh);
+  overflow: hidden;
+}

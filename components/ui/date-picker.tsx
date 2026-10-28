@@ -56,7 +56,7 @@ export function DatePicker<T extends DateValue>({ className, ...props }: DatePic
                                 {(date) => (
                                     <CalendarCell
                                         date={date}
-                                        className="flex justify-center items-center data-[selected]:bg-main hover:bg-main-tint data-[disabled]:opacity-40 rounded-lg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring size-10 data-[today]:font-bold data-[selected]:text-white text-sm cursor-pointer data-[outside-month]:invisible outline-none"
+                                        className="flex justify-center items-center data-[selected]:bg-main hover:bg-main-tint data-[disabled]:opacity-40 rounded-lg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring size-9 data-[today]:font-bold data-[selected]:text-white text-sm cursor-pointer data-[outside-month]:invisible outline-none"
                                     />
                                 )}
                             </CalendarGrid>

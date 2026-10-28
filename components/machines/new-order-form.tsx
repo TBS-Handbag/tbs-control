@@ -2,13 +2,15 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parseDateTime } from '@internationalized/date';
-import { useRef, useState } from 'react';
+import { useId } from 'react';
 import { useForm } from 'react-hook-form';
-import { LuPlus } from 'react-icons/lu';
+import { LuX } from 'react-icons/lu';
 import { z } from 'zod';
+import { cardClass } from '@/components/machines/detail-section';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { cn } from '@/lib/utils';
 
 const schema = z
     .object({
@@ -19,49 +21,38 @@ const schema = z
     .refine((v) => v.end > v.start, { message: 'Thời gian kết thúc phải sau thời gian bắt đầu', path: ['end'] });
 
 const FIELDS = [
-    { name: 'start', label: 'Thời gian bắt đầu' },
-    { name: 'end', label: 'Thời gian kết thúc' },
+    { name: 'start', label: 'Bắt đầu' },
+    { name: 'end', label: 'Kết thúc' },
 ] as const;
 
-export function NewOrderForm() {
-    const [open, setOpen] = useState(false);
-    const toggleBtn = useRef<HTMLButtonElement>(null);
+export function NewOrderForm({ onClose }: { onClose: () => void }) {
+    const titleId = useId();
     const form = useForm({ resolver: zodResolver(schema), defaultValues: { start: '', end: '' } });
-
-    const close = () => {
-        setOpen(false);
-        form.reset();
-        // form unmount làm mất focus, trả về nút mở cho người dùng bàn phím
-        requestAnimationFrame(() => toggleBtn.current?.focus());
-    };
-
-    if (!open) {
-        return (
-            <Button
-                ref={toggleBtn}
-                type="button"
-                aria-expanded={false}
-                onClick={() => setOpen(true)}
-                className="rounded-2xl h-14 [&_svg]:size-5 font-semibold text-base"
-            >
-                <LuPlus aria-hidden="true" />
-                Tạo lệnh mới
-            </Button>
-        );
-    }
 
     return (
         <Form {...form}>
             <form
-                aria-labelledby="new-order"
+                aria-labelledby={titleId}
                 // shortcut: submit hợp lệ chỉ đóng form, chưa lưu lệnh; nối API tạo lệnh khi có data layer.
-                onSubmit={form.handleSubmit(close)}
-                onKeyDown={(e) => e.key === 'Escape' && close()}
-                className="flex flex-col gap-3 bg-card p-4 border border-line rounded-2xl"
+                onSubmit={form.handleSubmit(onClose)}
+                onKeyDown={(e) => e.key === 'Escape' && onClose()}
+                className={cn(cardClass, 'flex flex-col gap-4 p-4 border-main/30')}
             >
-                <h2 id="new-order" className="font-bold text-base">
-                    Tạo lệnh mới
-                </h2>
+                <div className="flex justify-between items-center gap-2 -mt-1 -mr-1">
+                    <h3 id={titleId} className="font-semibold text-base">
+                        Tạo lệnh mới
+                    </h3>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Đóng"
+                        onClick={onClose}
+                        className="rounded-full size-9 text-subText"
+                    >
+                        <LuX aria-hidden="true" />
+                    </Button>
+                </div>
                 {FIELDS.map((f, i) => (
                     <FormField
                         key={f.name}
@@ -69,10 +60,10 @@ export function NewOrderForm() {
                         name={f.name}
                         render={({ field, fieldState }) => (
                             <FormItem className="gap-1.5">
-                                <FormLabel className="font-semibold text-labelText">{f.label}</FormLabel>
+                                <FormLabel className="font-medium text-labelText">{f.label}</FormLabel>
                                 <FormControl>
                                     <DatePicker
-                                        aria-label={f.label}
+                                        aria-label={`Thời gian ${f.label.toLowerCase()}`}
                                         granularity="minute"
                                         autoFocus={i === 0}
                                         isInvalid={!!fieldState.error}
@@ -86,17 +77,16 @@ export function NewOrderForm() {
                         )}
                     />
                 ))}
-                <div className="gap-2.5 grid grid-cols-2">
+                <div className="gap-2.5 grid grid-cols-2 pt-1">
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={close}
-                        className="border-line-strong rounded-xl h-12 font-semibold text-base"
+                        onClick={onClose}
+                        className="border-line-strong rounded-xl h-11 font-semibold text-base"
                     >
                         Huỷ
                     </Button>
-                    <Button type="submit" className="rounded-xl h-12 [&_svg]:size-5 font-semibold text-base">
-                        <LuPlus aria-hidden="true" />
+                    <Button type="submit" className="rounded-xl h-11 font-semibold text-base">
                         Tạo lệnh
                     </Button>
                 </div>
