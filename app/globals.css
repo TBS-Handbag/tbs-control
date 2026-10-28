@@ -87,6 +87,18 @@
   * {
     @apply border-border;
   }
+  /* giữ chỗ scrollbar cố định: mở Dialog (Radix khoá scroll) không làm trang/header nhảy */
+  html {
+    scrollbar-gutter: stable;
+  }
+  /* khoá scroll ngay trên html: gutter chỉ được giữ khi chính html overflow hidden (overflow truyền từ body thì mất gutter) */
+  html:has(body[data-scroll-locked]) {
+    overflow: hidden;
+  }
+  /* gutter đã giữ chỗ nên bỏ margin bù scrollbar của react-remove-scroll-bar; thêm `html` để thắng style nó inject sau */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
   body {
     @apply bg-surface text-foreground;
   }
@@ -106,4 +118,5 @@
 html:has(.tv-screen) {
   font-size: min(0.8333vw, 1.4815vh);
   overflow: hidden;
+  scrollbar-gutter: auto;
 }

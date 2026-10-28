@@ -109,7 +109,6 @@ export function WorkerList({ role, title, initialNames }: Props) {
                         aria-label={`Thêm công nhân ${roleLabel}`}
                         className="px-4 rounded-xl h-11 [&_svg]:size-5 font-semibold text-base shrink-0"
                     >
-                        <LuPlus aria-hidden="true" />
                         Thêm
                     </Button>
                 </form>

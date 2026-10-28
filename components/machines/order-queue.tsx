@@ -5,17 +5,16 @@ import { LuCircleStop, LuPause, LuPlus } from 'react-icons/lu';
 import { cardClass } from '@/components/machines/detail-section';
 import { NewOrderForm } from '@/components/machines/new-order-form';
 import { StatusPill } from '@/components/machines/status-pill';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { type Order, formatDateTime, formatDuration, stopEarly } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
@@ -41,7 +40,10 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
     const stopBtn = useRef<HTMLButtonElement>(null);
 
     // lệnh đang chạy đứng đầu, sau đó là hàng chờ theo thứ tự
-    const schedule = [...(current ? [{ ...current, running: true }] : []), ...queue.map((o) => ({ ...o, running: false }))];
+    const schedule = [
+        ...(current ? [{ ...current, running: true }] : []),
+        ...queue.map((o) => ({ ...o, running: false })),
+    ];
 
     const close = () => {
         setOpen(false);
@@ -112,7 +114,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                             {dayLabel(o.start)}
                                         </p>
                                     )}
-                                    <div className={cn('px-3', o.running && 'bg-run-bg/60 pb-3')}>
+                                    <div className={cn('px-3', o.running && 'bg-run-bg/60')}>
                                         <div
                                             className={cn(
                                                 'flex items-center gap-2.5 py-3.5',
@@ -125,8 +127,18 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                 aria-hidden="true"
                                                 className="flex flex-col items-center self-stretch gap-1 pt-1.5 shrink-0"
                                             >
-                                                <span className={cn('rounded-full size-2', o.running ? 'bg-run' : 'bg-line-strong')} />
-                                                <span className={cn('flex-1 w-px', o.running ? 'bg-run' : 'bg-line-strong')} />
+                                                <span
+                                                    className={cn(
+                                                        'rounded-full size-2',
+                                                        o.running ? 'bg-run' : 'bg-line-strong',
+                                                    )}
+                                                />
+                                                <span
+                                                    className={cn(
+                                                        'flex-1 w-px',
+                                                        o.running ? 'bg-run' : 'bg-line-strong',
+                                                    )}
+                                                />
                                             </span>
                                             <div className="flex flex-col gap-1 w-11 tabular-nums leading-tight shrink-0">
                                                 <span className="font-semibold">{st.time}</span>
@@ -135,32 +147,40 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                             </div>
                                             <div className="flex flex-col flex-1 gap-1 pl-2.5 border-line border-l min-w-0 leading-tight">
                                                 <span className="font-semibold truncate">{o.code}</span>
-                                                <span className="text-subText text-sm">{formatDuration(o.start, o.end)}</span>
+                                                <span className="text-subText text-sm">
+                                                    {formatDuration(o.start, o.end)}
+                                                </span>
                                             </div>
                                             {o.running ? (
-                                                <StatusPill running label="Đang chạy" className="px-3 py-1.5 font-medium text-sm" />
+                                                // pill + nút dừng xếp thành 1 khối cùng bề rộng ở cột phải
+                                                <div className="flex flex-col items-stretch gap-1.5 shrink-0">
+                                                    <StatusPill
+                                                        running
+                                                        label="Đang chạy"
+                                                        className="justify-center px-3 py-1.5 font-medium text-sm"
+                                                    />
+                                                    <Button
+                                                        ref={stopBtn}
+                                                        type="button"
+                                                        variant="outline"
+                                                        aria-label={`Dừng sớm lệnh ${o.code}`}
+                                                        onClick={() => {
+                                                            setTarget({ code: o.code, next: queue[0]?.code });
+                                                            setConfirming(true);
+                                                        }}
+                                                        className="gap-1.5 bg-card hover:bg-stop-cell px-3 border-stop-line rounded-full h-9 [&_svg]:size-4 font-semibold text-stop-fg hover:text-stop-fg"
+                                                    >
+                                                        <LuCircleStop aria-hidden="true" />
+                                                        {/* chữ ngắn để màn 320px không cắt mã lệnh; aria-label đã đủ nghĩa */}
+                                                        Dừng
+                                                    </Button>
+                                                </div>
                                             ) : (
-                                                <span className="tabular-nums text-subText text-sm shrink-0">Chờ #{queuePos}</span>
+                                                <span className="tabular-nums text-subText text-sm shrink-0">
+                                                    Chờ #{queuePos}
+                                                </span>
                                             )}
                                         </div>
-                                        {o.running && (
-                                            <div className="flex justify-end">
-                                                <Button
-                                                    ref={stopBtn}
-                                                    type="button"
-                                                    variant="outline"
-                                                    aria-label={`Dừng sớm lệnh ${o.code}`}
-                                                    onClick={() => {
-                                                        setTarget({ code: o.code, next: queue[0]?.code });
-                                                        setConfirming(true);
-                                                    }}
-                                                    className="bg-card hover:bg-stop-cell px-4 border-stop-line rounded-full h-10 [&_svg]:size-4 font-semibold text-stop-fg hover:text-stop-fg"
-                                                >
-                                                    <LuCircleStop aria-hidden="true" />
-                                                    Dừng sớm
-                                                </Button>
-                                            </div>
-                                        )}
                                     </div>
                                 </li>
                             );
@@ -169,8 +189,9 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                 )}
             </div>
 
-            <AlertDialog open={confirming} onOpenChange={setConfirming}>
-                <AlertDialogContent
+            <Dialog open={confirming} onOpenChange={setConfirming}>
+                <DialogContent
+                    showCloseButton={false}
                     className="rounded-2xl"
                     onCloseAutoFocus={(e) => {
                         // nút Dừng sớm cũ đã unmount sau khi dừng: focus nút của lệnh chạy mới, hết lệnh thì về Tạo lệnh
@@ -178,27 +199,37 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                         (stopBtn.current ?? toggleBtn.current)?.focus();
                     }}
                 >
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Dừng sớm lệnh {target.code}?</AlertDialogTitle>
-                        <AlertDialogDescription>
+                    <DialogHeader>
+                        <DialogTitle>Dừng sớm lệnh {target.code}?</DialogTitle>
+                        <DialogDescription>
                             {target.next
                                 ? `${target.next} sẽ chạy ngay, các lệnh chờ sau được dời lên sớm hơn.`
                                 : 'Không còn lệnh chờ, máy sẽ chuyển sang Dừng.'}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="border-line-strong rounded-xl h-11 font-semibold text-base">
-                            Huỷ
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={stop}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="border-line-strong rounded-xl h-11 font-semibold text-base"
+                            >
+                                Huỷ
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            type="button"
+                            onClick={() => {
+                                stop();
+                                setConfirming(false);
+                            }}
                             className="bg-stop hover:bg-stop/90 rounded-xl h-11 font-semibold text-white text-base"
                         >
                             Dừng lệnh
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <span role="status" className="sr-only">
                 {announce}
