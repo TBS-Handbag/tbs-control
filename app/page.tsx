@@ -1,57 +1,63 @@
-import { DeployButton } from '@/components/deploy-button';
-import { EnvVarWarning } from '@/components/env-var-warning';
-import { AuthButton } from '@/components/auth-button';
-import { Hero } from '@/components/hero';
-import { ThemeSwitcher } from '@/components/theme-switcher';
-import { ConnectSupabaseSteps } from '@/components/tutorial/connect-supabase-steps';
-import { SignUpUserSteps } from '@/components/tutorial/sign-up-user-steps';
-import { hasEnvVars } from '@/lib/utils';
-import Link from 'next/link';
+import { connection } from 'next/server';
 import { Suspense } from 'react';
+import { LuLayers, LuLayoutGrid, LuStamp } from 'react-icons/lu';
+import { AreaCard } from '@/components/machines/area-card';
+import { AREAS, CUT_GROUPS, MACHINES, machinesByArea, stat } from '@/lib/data/machines';
+
+async function TodayText() {
+    await connection();
+    const text = new Date().toLocaleDateString('vi-VN', {
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh',
+    });
+    return <span className="text-onMainSub text-sm first-letter:uppercase">{text}</span>;
+}
 
 export default function Home() {
-    return (
-        <main className="flex flex-col items-center min-h-screen">
-            <div className="flex flex-col flex-1 items-center gap-20 w-full">
-                <nav className="flex justify-center border-b border-b-foreground/10 w-full h-16">
-                    <div className="flex justify-between items-center p-3 px-5 w-full max-w-5xl text-sm">
-                        <div className="flex items-center gap-5 font-semibold">
-                            <Link href={'/'}>Next.js Supabase Starter</Link>
-                            <div className="flex items-center gap-2">
-                                <DeployButton />
-                            </div>
-                        </div>
-                        {!hasEnvVars ? (
-                            <EnvVarWarning />
-                        ) : (
-                            <Suspense>
-                                <AuthButton />
-                            </Suspense>
-                        )}
-                    </div>
-                </nav>
-                <div className="flex flex-col flex-1 gap-20 p-5 max-w-5xl">
-                    <Hero />
-                    <main className="flex flex-col flex-1 gap-6 px-4">
-                        <h2 className="mb-4 font-medium text-xl">Next steps</h2>
-                        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-                    </main>
-                </div>
+    const total = stat(MACHINES);
+    const cut = stat(machinesByArea('cut'));
+    const press = stat(machinesByArea('press'));
 
-                <footer className="flex justify-center items-center gap-8 mx-auto py-16 border-t w-full text-xs text-center">
-                    <p>
-                        Powered by{' '}
-                        <a
-                            href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-                            target="_blank"
-                            className="font-bold hover:underline"
-                            rel="noreferrer"
-                        >
-                            Supabase
-                        </a>
-                    </p>
-                    <ThemeSwitcher />
-                </footer>
+    return (
+        <main className="flex flex-col pb-8">
+            <div className="flex flex-col gap-3.5 bg-main px-5 pt-7 pb-16 text-white">
+                <div className="flex flex-col gap-1">
+                    <Suspense fallback={<span className="text-onMainSub text-sm">&nbsp;</span>}>
+                        <TodayText />
+                    </Suspense>
+                    <h1 className="font-bold text-2xl leading-tight">Chọn khu vực làm việc</h1>
+                </div>
+                <span className="flex items-center self-start gap-2 bg-main-soft px-3 py-1.5 rounded-full font-medium text-sm">
+                    <span aria-hidden="true" className="bg-run-light rounded-full size-2" />
+                    {total.run}/{total.total} máy đang chạy
+                </span>
+            </div>
+
+            <div className="flex flex-col gap-3.5 -mt-9 px-4">
+                <AreaCard
+                    href={AREAS.cut.href}
+                    index={AREAS.cut.index}
+                    title={AREAS.cut.title}
+                    meta={`${CUT_GROUPS.length} nhóm · ${cut.total} máy`}
+                    icon={LuLayers}
+                    run={cut.run}
+                    stop={cut.stop}
+                />
+                <AreaCard
+                    href={AREAS.press.href}
+                    index={AREAS.press.index}
+                    title={AREAS.press.title}
+                    meta={`${press.total} máy`}
+                    icon={LuStamp}
+                    run={press.run}
+                    stop={press.stop}
+                />
+                <p className="mx-1 mt-1.5 text-subText text-sm text-center leading-normal">
+                    Chạm vào một khu vực để xem danh sách máy
+                </p>
             </div>
         </main>
     );

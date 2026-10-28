@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Roboto } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -9,14 +9,14 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Theo dõi máy",
+  description: "Theo dõi trạng thái và lệnh chạy của máy theo khu vực",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const roboto = Roboto({
+  variable: "--font-roboto",
   display: "swap",
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
 });
 
 export default function RootLayout({
@@ -25,15 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+    <html lang="vi" className={roboto.variable} suppressHydrationWarning>
+      <body className="antialiased">
+        {/* Design chỉ có light mode */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          forcedTheme="light"
           disableTransitionOnChange
         >
-          {children}
+          <div className="mx-auto w-full max-w-md min-h-screen bg-surface">{children}</div>
         </ThemeProvider>
       </body>
     </html>

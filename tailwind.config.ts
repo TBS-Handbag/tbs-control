@@ -10,7 +10,40 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-roboto)", "system-ui", "sans-serif"],
+      },
       colors: {
+        main: {
+          DEFAULT: "hsl(var(--main))",
+          soft: "hsl(var(--main-soft))",
+          tint: "hsl(var(--main-tint))",
+          muted: "hsl(var(--main-muted))",
+        },
+        onMainSub: "hsl(var(--on-main-sub))",
+        surface: "hsl(var(--surface))",
+        mainText: "hsl(var(--main-text))",
+        subText: "hsl(var(--sub-text))",
+        labelText: "hsl(var(--label-text))",
+        iconMuted: "hsl(var(--icon-muted))",
+        line: {
+          DEFAULT: "hsl(var(--line))",
+          soft: "hsl(var(--line-soft))",
+          strong: "hsl(var(--line-strong))",
+        },
+        run: {
+          DEFAULT: "hsl(var(--run))",
+          bg: "hsl(var(--run-bg))",
+          fg: "hsl(var(--run-fg))",
+          light: "hsl(var(--run-light))",
+        },
+        stop: {
+          DEFAULT: "hsl(var(--stop))",
+          bg: "hsl(var(--stop-bg))",
+          fg: "hsl(var(--stop-fg))",
+          cell: "hsl(var(--stop-cell))",
+          line: "hsl(var(--stop-line))",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
