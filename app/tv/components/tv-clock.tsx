@@ -19,16 +19,6 @@ export function TvClock() {
             <time className="font-bold tabular-nums text-4xl">
                 {now ? now.toLocaleTimeString('vi-VN', { timeZone: TZ, hour12: false }) : '--:--:--'}
             </time>
-            <span className="text-onMainSub text-base first-letter:uppercase">
-                {now
-                    ? now.toLocaleDateString('vi-VN', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          timeZone: TZ,
-                      })
-                    : ' '}
-            </span>
         </div>
     );
 }

@@ -9,21 +9,32 @@ export function AreaPanel({ area, children }: { area: Area; children: ReactNode 
     return (
         <section
             aria-labelledby={`tv-${area}`}
-            className="flex flex-col gap-3 bg-card shadow-lg shadow-main/10 p-4 border border-line rounded-2xl min-w-0 min-h-0"
+            className="flex flex-col gap-3 bg-[#0F172A] p-4 border-2 border-white/10 rounded-2xl min-w-0 min-h-0"
         >
-            <header className="flex items-center gap-3 shrink-0">
+            <header className="flex items-center gap-3 mb-1 shrink-0">
                 <div className="flex flex-col flex-1 min-w-0">
-                    {/* <span className="font-bold text-main-muted text-sm tracking-wider">
-                        KHU VỰC {AREAS[area].index}
-                    </span> */}
-                    <h2 id={`tv-${area}`} className="font-bold text-main text-3xl truncate leading-tight">
+                    <h2
+                        id={`tv-${area}`}
+                        className="pl-2 border-transparent border-l-4 border-l-zone font-extrabold text-mainText text-3xl truncate leading-tight"
+                    >
                         {AREAS[area].title}
                     </h2>
                 </div>
-                <StatusPill solid status="run" label={`${s.run} đang chạy`} className="px-3 font-bold text-lg" />
-                <StatusPill solid status="idle" label={`${s.idle} hết lệnh chờ`} className="px-3 font-bold text-lg" />
-                <StatusPill solid status="stop" label={`${s.stop} dừng`} className="px-3 font-bold text-lg" />
-                <span className="bg-main px-3 py-1 rounded-full font-bold text-white text-lg shrink-0">
+                <StatusPill status="run" label={`${s.run} đang chạy`} className="px-3 font-bold text-lg" />
+                {/* hết lệnh chờ / dừng chỉ tô đặc khi có máy, để mắt nhảy vào chỗ cần xử lý */}
+                <StatusPill
+                    solid={s.idle > 0}
+                    status="idle"
+                    label={`${s.idle} hết lệnh chờ`}
+                    className="px-3 font-bold text-lg"
+                />
+                <StatusPill
+                    solid={s.stop > 0}
+                    status="stop"
+                    label={`${s.stop} dừng`}
+                    className="px-3 font-bold text-lg"
+                />
+                <span className="bg-white px-3 py-0.5 rounded-full font-bold text-[#333] text-lg shrink-0">
                     {queued} lệnh chờ
                 </span>
             </header>

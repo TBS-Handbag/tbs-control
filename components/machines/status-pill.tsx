@@ -1,35 +1,35 @@
 import type { Status } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
-/** Màu theo trạng thái máy. pill/dot/cell: mobile; band/frame: màu đặc cho TV nhìn từ xa. */
+/** Màu theo trạng thái máy. pill/dot/cell: dùng chung; band/chip: dải tên + đếm lệnh chờ trên ô máy TV. */
 export const STATUS_STYLE: Record<
     Status,
-    { label: string; pill: string; dot: string; cell: string; band: string; frame: string }
+    { label: string; pill: string; dot: string; cell: string; band: string; chip: string }
 > = {
     run: {
         label: 'Đang chạy',
-        pill: 'bg-run-bg text-run-fg',
+        pill: 'bg-[#16c45a] text-run-fg',
         dot: 'bg-run',
-        cell: 'bg-card border-line',
-        band: 'bg-run text-white',
-        frame: 'bg-card border-run',
+        cell: 'bg-white/5 border-run-line',
+        // máy chạy bình thường không tô đặc, để vàng/đỏ nổi lên
+        band: 'bg-[#16c45a] text-run-fg',
+        chip: 'bg-white/90 text-[#333]',
     },
     idle: {
         label: 'Hết lệnh chờ',
         pill: 'bg-idle-bg text-idle-fg',
         dot: 'bg-idle',
         cell: 'bg-idle-cell border-idle-line',
-        // vàng sáng: chữ trắng không đọc được nên dùng chữ đậm
-        band: 'bg-idle text-mainText',
-        frame: 'bg-idle-cell border-idle',
+        band: 'bg-idle text-idle-on',
+        chip: 'bg-idle-on text-idle-fg',
     },
     stop: {
         label: 'Dừng',
         pill: 'bg-stop-bg text-stop-fg',
         dot: 'bg-stop',
         cell: 'bg-stop-cell border-stop-line',
-        band: 'bg-stop text-white',
-        frame: 'bg-stop-cell border-stop',
+        band: 'bg-stop text-stop-on',
+        chip: 'bg-stop-on text-stop',
     },
 };
 
