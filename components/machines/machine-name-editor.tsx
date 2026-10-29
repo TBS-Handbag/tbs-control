@@ -78,13 +78,7 @@ export function MachineNameEditor({ id, name }: { id: string; name: string }) {
                     )}
                 />
                 <div className="gap-2.5 grid grid-cols-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={close}
-                        className="border-line-strong"
-                    >
+                    <Button type="button" variant="outline" size="lg" onClick={close} className="border-line-strong">
                         Huỷ
                     </Button>
                     <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>

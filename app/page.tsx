@@ -27,7 +27,7 @@ async function HomeContent() {
 
     return (
         <main className="flex flex-col pb-8">
-            <div className="relative bg-main pb-52 h-60 [clip-path:ellipse(95%_100%_at_50%_0)]">
+            <div className="relative bg-main pb-52 h-60 [clip-path:ellipse(98%_100%_at_50%_0)]">
                 {/* chừa đáy cho khối tiêu đề đè lên để không che chân tụi nhỏ trong tranh */}
                 <div className="top-0 bottom-8 absolute inset-x-0">
                     {/* tranh nét đen nền trắng: invert + screen để thành nét sáng trên nền xanh */}
