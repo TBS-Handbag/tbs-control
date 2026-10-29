@@ -1,9 +1,12 @@
+import type { Viewport } from 'next';
 import Image from 'next/image';
 import { LuLayers, LuStamp } from 'react-icons/lu';
 import { AreaCard } from '@/components/machines/area-card';
 import { StatusCounts } from '@/components/machines/status-pill';
 import { AREAS, CUT_GROUPS, MACHINES, machinesByArea, stat } from '@/lib/data/machines';
 import kite from '@/public/images/kite.webp';
+
+export const viewport: Viewport = { themeColor: '#00402A' }; // khớp header bg-main
 
 export default function Home() {
     const total = stat(MACHINES);

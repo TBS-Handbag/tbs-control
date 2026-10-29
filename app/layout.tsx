@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 // cover: không để iOS chừa dải trống quanh notch; trang nào có chữ sát mép trên tự cộng env(safe-area-inset-top)
 export const viewport: Viewport = {
     viewportFit: 'cover',
-    themeColor: '#00402A', // khớp --main
+    themeColor: '#F9F9F9', // khớp --surface (nền PageHeader); trang chủ header xanh tự override
 };
 
 const roboto = Roboto({
