@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Theo dõi máy",
   description: "Theo dõi trạng thái và lệnh chạy của máy theo khu vực",
+  // PWA iOS: nội dung vẽ dưới status bar (chữ trắng) để header xanh tràn lên mép trên
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent" },
+};
+
+// cover: không để iOS chừa dải trống quanh notch; trang nào có chữ sát mép trên tự cộng env(safe-area-inset-top)
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: "#00402A", // khớp --main
 };
 
 const roboto = Roboto({

@@ -7,10 +7,10 @@
         /* Brand palette (hex), dùng qua class Tailwind: bg-main, text-subText, ... */
         --main: #00402a;
         --main-soft: #14563e; /* nền phụ trên header xanh */
-        --main-tint: color-mix(in srgb, var(--main) 80%, white); /* ô icon, badge nhạt */
+        --main-tint: color-mix(in srgb, var(--main) 10%, white); /* ô icon, badge nhạt */
         --main-muted: #3d6b58; /* eyebrow */
         --on-main-sub: #bfd8cc; /* chữ phụ trên nền main */
-        --surface: #f3f6f4; /* nền app */
+        --surface: #f9f9f9; /* nền app: xám trung tính nhẹ */
         --main-text: #10241c;
         --sub-text: #5b6b64;
         --label-text: #33473f;
@@ -19,7 +19,7 @@
         --line-soft: #e6eeea;
         --line-strong: #cbd8d2;
         --run: var(--main);
-        --run-bg: var(--main-tint);
+        --run-bg: #dcfce7; /* xanh lá nhạt cùng độ sáng idle-bg/stop-bg; main-tint ngả xám, không đọc ra "đang chạy" */
         --run-fg: color-mix(in srgb, var(--main) 55%, black); /* main tối lại cho chữ đủ tương phản */
         --run-light: #4ade80; /* chấm sáng trên nền main */
         --run-cell: #ffffff;
@@ -32,13 +32,17 @@
         --idle-on: #1a1300; /* chữ trên nền vàng đặc */
         --stop: #ef3b3b;
         --stop-bg: #fee2e2;
-        --stop-fg: #991b1b;
-        --stop-cell: #fef2f2;
+        --stop-fg: #ea1313;
+        --stop-cell: #ffdede;
         --stop-line: #fca5a5;
         --stop-on: #ffffff; /* chữ trên nền đỏ đặc */
         --zone: #e530e8; /* khung nhóm máy trên TV (máy 13–18) */
         --zone-bg: #0c1b25;
         --zone-on: #04202e; /* chữ trên nhãn khung */
+        --sub0: #3c3454;
+        --sub1: #e8e5f5;
+        --sub2: #8b84b8;
+        --sub3: #f5b841;
 
         /* shadcn tokens map về brand */
         --background: #ffffff;

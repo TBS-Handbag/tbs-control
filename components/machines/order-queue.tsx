@@ -4,7 +4,6 @@ import { useId, useRef, useState } from 'react';
 import { LuCircleStop, LuPause, LuPlus } from 'react-icons/lu';
 import { cardClass } from '@/components/machines/detail-section';
 import { NewOrderForm } from '@/components/machines/new-order-form';
-import { StatusPill } from '@/components/machines/status-pill';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -114,7 +113,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                             {dayLabel(o.start)}
                                         </p>
                                     )}
-                                    <div className={cn('px-3', o.running && 'bg-run-bg/60')}>
+                                    <div className={cn('px-3', o.running && 'bg-run-bg')}>
                                         <div
                                             className={cn(
                                                 'flex items-center gap-2.5 py-3.5',
@@ -152,13 +151,9 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                 </span>
                                             </div>
                                             {o.running ? (
-                                                // pill + nút dừng xếp thành 1 khối cùng bề rộng ở cột phải
-                                                <div className="flex flex-col items-stretch gap-1.5 shrink-0">
-                                                    <StatusPill
-                                                        status="run"
-                                                        label="Đang chạy"
-                                                        className="justify-center px-3 py-1.5 font-medium text-sm"
-                                                    />
+                                                <>
+                                                    {/* nền xanh của hàng chỉ là tín hiệu nhìn, đọc trạng thái cho trình đọc màn hình */}
+                                                    <span className="sr-only">Đang chạy</span>
                                                     <Button
                                                         ref={stopBtn}
                                                         type="button"
@@ -168,13 +163,13 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                             setTarget({ code: o.code, next: queue[0]?.code });
                                                             setConfirming(true);
                                                         }}
-                                                        className="gap-1.5 bg-card hover:bg-stop-cell px-3 border-stop-line rounded-full h-9 [&_svg]:size-4 font-semibold text-stop-fg hover:text-stop-fg"
+                                                        className="gap-1.5 bg-card hover:bg-stop-cell px-3 border-stop-line rounded-full h-9 [&_svg]:size-4 font-semibold text-stop-fg hover:text-stop-fg shrink-0"
                                                     >
                                                         <LuCircleStop aria-hidden="true" />
                                                         {/* chữ ngắn để màn 320px không cắt mã lệnh; aria-label đã đủ nghĩa */}
                                                         Dừng
                                                     </Button>
-                                                </div>
+                                                </>
                                             ) : (
                                                 <span className="tabular-nums text-subText text-sm shrink-0">
                                                     Chờ #{queuePos}

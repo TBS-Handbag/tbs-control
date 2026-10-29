@@ -5,7 +5,8 @@ type Props = { title: string; backHref: string };
 
 export function PageHeader({ title, backHref }: Props) {
     return (
-        <header className="top-0 z-10 sticky flex items-center gap-2.5 bg-surface px-3 pt-3 pb-3.5 text-main">
+        // viền trên xanh cao bằng safe-area: status bar iOS chữ trắng vẫn đọc được trên header nền sáng
+        <header className="top-0 z-10 sticky flex items-center gap-2.5 bg-surface px-3 pt-3 pb-3.5 border-t-[length:env(safe-area-inset-top)] border-t-main text-main">
             <Link
                 href={backHref}
                 aria-label="Quay lại"

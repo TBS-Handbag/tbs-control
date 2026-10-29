@@ -37,7 +37,7 @@ export function AreaCard({ href, title, meta, icon: Icon, run, idle, stop }: Pro
                     <span className="font-semibold text-mainText text-lg leading-tight">{title}</span>
                     <span className="text-subText text-sm">{meta}</span>
                 </span>
-                <LuChevronRight aria-hidden="true" className="text-iconMuted size-5 shrink-0" />
+                <LuChevronRight aria-hidden="true" className="size-5 text-iconMuted shrink-0" />
             </span>
 
             <span aria-hidden="true" className="flex gap-0.5">
@@ -46,7 +46,7 @@ export function AreaCard({ href, title, meta, icon: Icon, run, idle, stop }: Pro
                 ))}
             </span>
 
-            <span className="flex gap-4 text-subText text-sm">
+            <span className="flex gap-4 text-subText text-base">
                 {counts.map(([s, n, label]) => (
                     <span key={s} className="flex items-center gap-1.5">
                         <span aria-hidden="true" className={cn('rounded-full size-2', STATUS_STYLE[s].dot)} />

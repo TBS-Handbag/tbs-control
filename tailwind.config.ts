@@ -64,6 +64,10 @@ export default {
           bg: c("--zone-bg"),
           on: c("--zone-on"),
         },
+        sub0: c("--sub0"),
+        sub1: c("--sub1"),
+        sub2: c("--sub2"),
+        sub3: c("--sub3"),
         background: c("--background"),
         foreground: c("--foreground"),
         card: {

@@ -53,7 +53,7 @@ export function WorkerList({ role, title, initialNames }: Props) {
     return (
         <section aria-labelledby={headingId} className={cn(cardClass, 'flex flex-col gap-3 p-3')}>
             <div className="flex items-center gap-3">
-                <h3 id={headingId} className="flex-1 min-w-0 font-bold text-[#555] text-base leading-tight">
+                <h3 id={headingId} className="flex-1 min-w-0 font-bold text-labelText text-base leading-tight">
                     {title}
                 </h3>
                 <span className="font-semibold text-subText text-sm shrink-0">{names.length} người</span>
