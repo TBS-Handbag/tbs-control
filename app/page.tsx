@@ -1,17 +1,29 @@
 import type { Viewport } from 'next';
 import Image from 'next/image';
+import { Suspense } from 'react';
 import { LuLayers, LuStamp } from 'react-icons/lu';
+import { Loading } from '@/components/loading';
 import { AreaCard } from '@/components/machines/area-card';
 import { StatusCounts } from '@/components/machines/status-pill';
-import { AREAS, CUT_GROUPS, MACHINES, machinesByArea, stat } from '@/lib/data/machines';
+import { getMachines } from '@/lib/data/get-machines';
+import { AREAS, CUT_GROUPS, machinesByArea, stat } from '@/lib/data/machines';
 import kite from '@/public/images/kite.webp';
 
 export const viewport: Viewport = { themeColor: '#00402A' }; // khớp header bg-main
 
 export default function Home() {
-    const total = stat(MACHINES);
-    const cut = stat(machinesByArea('cut'));
-    const press = stat(machinesByArea('press'));
+    return (
+        <Suspense fallback={<Loading />}>
+            <HomeContent />
+        </Suspense>
+    );
+}
+
+async function HomeContent() {
+    const machines = await getMachines();
+    const total = stat(machines);
+    const cut = stat(machinesByArea(machines, 'cut'));
+    const press = stat(machinesByArea(machines, 'press'));
 
     return (
         <main className="flex flex-col pb-8">

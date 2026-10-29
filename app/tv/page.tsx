@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import { CUT_GROUPS, MACHINES, machinesByArea, stat } from '@/lib/data/machines';
+import { Suspense } from 'react';
+import { Loading } from '@/components/loading';
+import { getMachines } from '@/lib/data/get-machines';
+import { CUT_GROUPS, machinesByArea, stat } from '@/lib/data/machines';
 import { AreaPanel } from './components/area-panel';
 import { MachineTile } from './components/machine-tile';
 import { TvClock } from './components/tv-clock';
@@ -7,9 +10,18 @@ import { TvClock } from './components/tv-clock';
 export const metadata: Metadata = { title: 'Bảng điều hành – TV' };
 
 export default function TvPage() {
-    const total = stat(MACHINES);
-    const cut = machinesByArea('cut');
-    const press = machinesByArea('press');
+    return (
+        <Suspense fallback={<Loading />}>
+            <TvBoard />
+        </Suspense>
+    );
+}
+
+async function TvBoard() {
+    const machines = await getMachines();
+    const total = stat(machines);
+    const cut = machinesByArea(machines, 'cut');
+    const press = machinesByArea(machines, 'press');
     // shortcut: 12 máy đầu + khung 6 máy cuối theo mock 18 máy, thêm máy thì đổi số hàng/cột
     const [pressMain, pressZone] = [press.slice(0, 12), press.slice(12)];
 
@@ -28,9 +40,9 @@ export default function TvPage() {
             </header>
 
             <div className="flex-1 gap-4 grid grid-cols-2 min-h-0">
-                <AreaPanel area="cut">
-                    {/* shortcut: lưới cố định 3 nhóm × 3 cột theo mock data, đổi sang tính động khi số máy thay đổi */}
-                    <div className="flex-1 gap-3 grid grid-rows-3 min-h-0">
+                <AreaPanel area="cut" list={cut}>
+                    {/* shortcut: lưới cố định 2 nhóm × 3 cột theo mock data, đổi sang tính động khi số máy thay đổi */}
+                    <div className="flex-1 gap-3 grid grid-rows-2 min-h-0">
                         {CUT_GROUPS.map((g) => (
                             <div key={g} className="flex flex-col gap-1.5 min-h-0">
                                 <h3 className="font-bold text-lg uppercase tracking-widest shrink-0">{g}</h3>
@@ -46,7 +58,7 @@ export default function TvPage() {
                     </div>
                 </AreaPanel>
 
-                <AreaPanel area="press">
+                <AreaPanel area="press" list={press}>
                     <div className="flex-[7_1_0] gap-2.5 grid grid-cols-3 grid-rows-4 min-h-0">
                         {pressMain.map((m) => (
                             <MachineTile key={m.id} m={m} compact />

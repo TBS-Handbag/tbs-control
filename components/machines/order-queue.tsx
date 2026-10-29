@@ -1,7 +1,8 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
-import { LuCircleStop, LuPause, LuPlus } from 'react-icons/lu';
+import { useId, useRef, useState, useTransition } from 'react';
+import { LuCircleStop, LuPause, LuPlus, LuTrash2 } from 'react-icons/lu';
+import { deleteOrder, stopOrder } from '@/app/machines/[id]/actions';
 import { cardClass } from '@/components/machines/detail-section';
 import { NewOrderForm } from '@/components/machines/new-order-form';
 import { Button } from '@/components/ui/button';
@@ -14,29 +15,29 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { type Order, formatDateTime, formatDuration, stopEarly } from '@/lib/data/machines';
+import { type Order, formatDateTime, formatDuration } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
 // "2026-10-28T06:00" -> "thứ tư, 28/10" (class capitalize viết hoa từng từ)
 const dayLabel = (iso: string) =>
     new Date(iso).toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit' });
 
-type Props = { initialCurrent: Order | null; initialQueue: Order[] };
+type Props = { machineId: string; current: Order | null; queue: Order[] };
 
-/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh và Dừng sớm. */
-export function OrderQueue({ initialCurrent, initialQueue }: Props) {
-    // shortcut: chỉ lưu state cục bộ (reload là mất, pill trạng thái máy phía trên không đổi theo);
-    // thay bằng server action + revalidate khi có data layer.
-    const [current, setCurrent] = useState(initialCurrent);
-    const [queue, setQueue] = useState(initialQueue);
+/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh, Dừng sớm và Xoá lệnh chờ. */
+export function OrderQueue({ machineId, current, queue }: Props) {
+    const [pending, startAction] = useTransition();
+    const [actionError, setActionError] = useState('');
     const [open, setOpen] = useState(false);
     const [confirming, setConfirming] = useState(false);
-    // chụp nội dung lúc mở dialog để chữ không đổi sang lệnh mới trong lúc dialog đang đóng
-    const [target, setTarget] = useState<{ code: string; next?: string }>({ code: '' });
+    // chụp nội dung lúc mở dialog để chữ không đổi sang lệnh mới trong lúc dialog đang đóng;
+    // có id là xoá lệnh chờ đó, không có là dừng lệnh đang Hoạt động
+    const [target, setTarget] = useState<{ id?: number; code: string; next?: string }>({ code: '' });
     const [announce, setAnnounce] = useState('');
     const headingId = useId();
     const toggleBtn = useRef<HTMLButtonElement>(null);
     const stopBtn = useRef<HTMLButtonElement>(null);
+    const triggerBtn = useRef<HTMLButtonElement | null>(null);
 
     // lệnh đang Hoạt động đứng đầu, sau đó là hàng chờ theo thứ tự
     const schedule = [
@@ -50,17 +51,27 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
         requestAnimationFrame(() => toggleBtn.current?.focus());
     };
 
-    const stop = () => {
-        if (!current) return;
-        const next = stopEarly(current, queue, new Date());
-        setCurrent(next.current);
-        setQueue(next.queue);
-        setAnnounce(
-            next.current
-                ? `Đã dừng ${current.code}, ${next.current.code} bắt đầu Hoạt động`
-                : `Đã dừng ${current.code}, máy chuyển sang Nhàn rỗi`,
-        );
+    const ask = (t: typeof target, btn: HTMLButtonElement) => {
+        triggerBtn.current = btn;
+        setTarget(t);
+        setActionError('');
+        setConfirming(true);
     };
+
+    const confirm = () =>
+        startAction(async () => {
+            const { error } = target.id ? await deleteOrder(machineId, target.id) : await stopOrder(machineId);
+            // lỗi thì giữ dialog mở để hiện lỗi và cho bấm lại
+            if (error) return setActionError(error);
+            setConfirming(false);
+            setAnnounce(
+                target.id
+                    ? `Đã xoá ${target.code}`
+                    : target.next
+                      ? `Đã dừng ${target.code}, ${target.next} bắt đầu Hoạt động`
+                      : `Đã dừng ${target.code}, máy chuyển sang Nhàn rỗi`,
+            );
+        });
 
     return (
         <section aria-labelledby={headingId} className={cn(cardClass, 'flex flex-col gap-3 p-3')}>
@@ -81,7 +92,9 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                     </Button>
                 )}
             </div>
-            {open && <NewOrderForm onClose={close} />}
+            {open && (
+                <NewOrderForm machineId={machineId} chainStart={schedule.at(-1)?.end} onClose={close} />
+            )}
 
             <div className="border border-line rounded-xl overflow-hidden">
                 {schedule.length === 0 ? (
@@ -102,7 +115,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                             const newDay = i === 0 || st.date !== formatDateTime(schedule[i - 1].start).date;
                             const queuePos = current ? i : i + 1;
                             return (
-                                <li key={o.code}>
+                                <li key={o.id}>
                                     {newDay && (
                                         <p
                                             className={cn(
@@ -159,10 +172,9 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                         type="button"
                                                         variant="outline"
                                                         aria-label={`Dừng sớm lệnh ${o.code}`}
-                                                        onClick={() => {
-                                                            setTarget({ code: o.code, next: queue[0]?.code });
-                                                            setConfirming(true);
-                                                        }}
+                                                        onClick={(e) =>
+                                                            ask({ code: o.code, next: queue[0]?.code }, e.currentTarget)
+                                                        }
                                                         className="gap-1.5 bg-card hover:bg-stop-cell px-3 border-stop-line rounded-full h-9 [&_svg]:size-4 font-semibold text-stop-fg hover:text-stop-fg shrink-0"
                                                     >
                                                         <LuCircleStop aria-hidden="true" />
@@ -171,9 +183,26 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                     </Button>
                                                 </>
                                             ) : (
-                                                <span className="tabular-nums text-subText text-sm shrink-0">
-                                                    Chờ #{queuePos}
-                                                </span>
+                                                <>
+                                                    <span className="tabular-nums text-subText text-sm shrink-0">
+                                                        Chờ #{queuePos}
+                                                    </span>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        aria-label={`Xoá lệnh ${o.code}`}
+                                                        onClick={(e) =>
+                                                            ask(
+                                                                { id: o.id, code: o.code, next: schedule[i + 1]?.code },
+                                                                e.currentTarget,
+                                                            )
+                                                        }
+                                                        className="-mr-1 rounded-full size-9 text-subText hover:text-stop-fg shrink-0"
+                                                    >
+                                                        <LuTrash2 aria-hidden="true" />
+                                                    </Button>
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -189,18 +218,30 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                     showCloseButton={false}
                     className="rounded-2xl"
                     onCloseAutoFocus={(e) => {
-                        // nút Dừng cũ đã unmount sau khi dừng: focus nút của lệnh Hoạt động mới, Hết lệnh thì về Tạo lệnh
+                        // Huỷ thì về nút vừa bấm; nút đó unmount (đã dừng/xoá) thì focus nút Dừng của lệnh Hoạt động, Hết lệnh thì về Tạo lệnh
                         e.preventDefault();
-                        (stopBtn.current ?? toggleBtn.current)?.focus();
+                        const btn = triggerBtn.current?.isConnected ? triggerBtn.current : stopBtn.current;
+                        (btn ?? toggleBtn.current)?.focus();
                     }}
                 >
                     <DialogHeader>
-                        <DialogTitle>Dừng lệnh {target.code}?</DialogTitle>
+                        <DialogTitle>
+                            {target.id ? 'Xoá' : 'Dừng'} lệnh {target.code}?
+                        </DialogTitle>
                         <DialogDescription>
-                            {target.next
-                                ? `${target.next} sẽ Hoạt động ngay, các lệnh chờ sau được dời lên sớm hơn.`
-                                : 'Không còn lệnh chờ, máy sẽ chuyển sang Nhàn rỗi.'}
+                            {target.id
+                                ? target.next
+                                    ? `${target.next} và các lệnh chờ sau được dời lên sớm hơn.`
+                                    : 'Lệnh bị xoá khỏi hàng chờ.'
+                                : target.next
+                                  ? `${target.next} sẽ Hoạt động ngay, các lệnh chờ sau được dời lên sớm hơn.`
+                                  : 'Không còn lệnh chờ, máy sẽ chuyển sang Nhàn rỗi.'}
                         </DialogDescription>
+                        {actionError && (
+                            <p role="alert" className="font-medium text-stop-fg text-sm">
+                                {actionError}
+                            </p>
+                        )}
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose asChild>
@@ -211,13 +252,11 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                         <Button
                             type="button"
                             size="lg"
-                            onClick={() => {
-                                stop();
-                                setConfirming(false);
-                            }}
+                            onClick={confirm}
+                            disabled={pending}
                             className="bg-stop hover:bg-stop/90 text-white"
                         >
-                            Dừng lệnh
+                            {target.id ? 'Xoá' : 'Dừng'} lệnh
                         </Button>
                     </DialogFooter>
                 </DialogContent>

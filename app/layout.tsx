@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Roboto } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
+import { AutoRefresh } from '@/components/auto-refresh';
 import './globals.css';
 
 const defaultUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
@@ -36,6 +37,7 @@ export default function RootLayout({
                 {/* Design chỉ có light mode */}
                 <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" disableTransitionOnChange>
                     <div className="bg-surface mx-auto w-full max-w-md min-h-screen">{children}</div>
+                    <AutoRefresh />
                 </ThemeProvider>
             </body>
         </html>

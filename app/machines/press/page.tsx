@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { Loading } from '@/components/loading';
 import { PageHeader } from '@/components/machines/page-header';
 import { STATUS_STYLE } from '@/components/machines/status-pill';
+import { getMachines } from '@/lib/data/get-machines';
 import { AREAS, type Status, machinesByArea, stat, statusOf } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +30,15 @@ const SECTIONS: { status: Status; title: string; tile: string; text: string }[] 
 ];
 
 export default function PressAreaPage() {
-    const machines = machinesByArea('press');
+    return (
+        <Suspense fallback={<Loading />}>
+            <PressArea />
+        </Suspense>
+    );
+}
+
+async function PressArea() {
+    const machines = machinesByArea(await getMachines(), 'press');
     const { queued } = stat(machines);
 
     return (

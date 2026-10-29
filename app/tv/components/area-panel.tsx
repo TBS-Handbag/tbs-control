@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react';
 import { StatusPill } from '@/components/machines/status-pill';
-import { AREAS, type Area, machinesByArea, stat } from '@/lib/data/machines';
+import { AREAS, type Area, type Machine, stat } from '@/lib/data/machines';
 
-export function AreaPanel({ area, children }: { area: Area; children: ReactNode }) {
-    const list = machinesByArea(area);
+export function AreaPanel({ area, list, children }: { area: Area; list: Machine[]; children: ReactNode }) {
     const s = stat(list);
     return (
         <section

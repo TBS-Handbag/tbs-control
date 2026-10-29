@@ -1,49 +1,70 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useId, useState } from 'react';
+import { useId, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { LuX } from 'react-icons/lu';
 import { z } from 'zod';
+import { addWorker, removeWorker } from '@/app/machines/[id]/actions';
 import { cardClass } from '@/components/machines/detail-section';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PERSON_NAME, type WorkerRole } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
 const schema = z.object({
-    name: z.string().trim().min(1, 'Nhập tên công nhân').max(50, 'Tên tối đa 50 ký tự'),
+    name: z
+        .string()
+        .trim()
+        .min(1, 'Nhập tên công nhân')
+        .max(50, 'Tên tối đa 50 ký tự')
+        .regex(PERSON_NAME, 'Tên chỉ gồm chữ cái, không có số hay ký tự đặc biệt'),
 });
 
-const normalize = (s: string) => s.trim().replace(/\s+/g, ' ');
+// "  nguyễn VĂN nam " -> "Nguyễn Văn Nam"
+const normalize = (s: string) =>
+    s
+        .trim()
+        .split(/\s+/)
+        .map((w) => w.charAt(0).toLocaleUpperCase('vi') + w.slice(1).toLocaleLowerCase('vi'))
+        .join(' ');
 
-type Props = { title: string; initialNames: string[] };
+type Props = { machineId: string; role: WorkerRole; title: string; names: string[] };
 
-export function WorkerList({ title, initialNames }: Props) {
-    // shortcut: chỉ lưu state cục bộ (reload là mất), thay bằng insert/delete Supabase khi có data layer.
-    const [names, setNames] = useState(initialNames);
+export function WorkerList({ machineId, role, title, names }: Props) {
+    const [removing, startRemove] = useTransition();
     const [announce, setAnnounce] = useState('');
     const headingId = useId();
     const form = useForm({ resolver: zodResolver(schema), defaultValues: { name: '' } });
     const roleLabel = title.toLowerCase();
 
-    const add = ({ name }: z.infer<typeof schema>) => {
+    const add = async ({ name }: z.infer<typeof schema>) => {
         const value = normalize(name);
         if (names.some((n) => n.toLocaleLowerCase('vi') === value.toLocaleLowerCase('vi'))) {
             form.setError('name', { message: `${value} đã có trong danh sách` });
             return;
         }
-        setNames([...names, value]);
+        const { error } = await addWorker(machineId, role, value);
+        if (error) {
+            form.setError('name', { message: error });
+            return;
+        }
         setAnnounce(`Đã thêm ${value} vào ${roleLabel}`);
         form.reset();
     };
 
-    const remove = (name: string) => {
-        setNames(names.filter((n) => n !== name));
-        setAnnounce(`Đã xoá ${name} khỏi ${roleLabel}`);
-        // nút xoá biến mất làm mất focus, đưa về ô nhập
-        form.setFocus('name');
-    };
+    const remove = (name: string) =>
+        startRemove(async () => {
+            const { error } = await removeWorker(machineId, role, name);
+            if (error) {
+                form.setError('name', { message: error });
+                return;
+            }
+            setAnnounce(`Đã xoá ${name} khỏi ${roleLabel}`);
+            // nút xoá biến mất làm mất focus, đưa về ô nhập
+            form.setFocus('name');
+        });
 
     return (
         <section aria-labelledby={headingId} className={cn(cardClass, 'flex flex-col gap-3 p-3')}>
@@ -68,7 +89,8 @@ export function WorkerList({ title, initialNames }: Props) {
                                 type="button"
                                 aria-label={`Xoá ${n} khỏi ${roleLabel}`}
                                 onClick={() => remove(n)}
-                                className="flex justify-center items-center hover:bg-line rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring size-8 text-labelText shrink-0"
+                                disabled={removing}
+                                className="flex justify-center items-center hover:bg-line rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 size-8 text-labelText shrink-0"
                             >
                                 <LuX aria-hidden="true" className="size-4" />
                             </button>
@@ -91,8 +113,17 @@ export function WorkerList({ title, initialNames }: Props) {
                                         {...field}
                                         placeholder="Nhập tên công nhân"
                                         autoComplete="off"
-                                        enterKeyHint="done"
-                                        className="border-line-strong rounded-xl h-11 text-base md:text-base"
+                                        autoCapitalize="words"
+                                        // "done" trên Android chỉ đóng bàn phím, không submit form
+                                        enterKeyHint="go"
+                                        // Chrome Android + Gboard gửi keydown Enter nhưng không tự submit form, phải tự gọi
+                                        onKeyDown={(e) => {
+                                            if (e.key !== 'Enter') return;
+                                            e.preventDefault();
+                                            form.handleSubmit(add)();
+                                        }}
+                                        // chỉ viết hoa khi hiển thị lúc gõ (đổi value giữa chừng làm loạn bộ gõ tiếng Việt), normalize lúc thêm mới viết hoa thật
+                                        className="border-line-strong rounded-xl h-11 text-base md:text-base capitalize placeholder:normal-case"
                                     />
                                 </FormControl>
                                 <FormMessage className="mt-1.5" />
@@ -103,6 +134,7 @@ export function WorkerList({ title, initialNames }: Props) {
                         type="submit"
                         aria-label={`Thêm công nhân ${roleLabel}`}
                         size="lg"
+                        disabled={form.formState.isSubmitting}
                         className="shrink-0"
                     >
                         Thêm

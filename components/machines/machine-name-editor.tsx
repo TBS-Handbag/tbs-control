@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { LuPencil } from 'react-icons/lu';
 import { z } from 'zod';
+import { renameMachine } from '@/app/machines/[id]/actions';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -13,9 +14,7 @@ const schema = z.object({
     name: z.string().trim().min(1, 'Nhập tên máy').max(50, 'Tên máy tối đa 50 ký tự'),
 });
 
-export function MachineNameEditor({ initialName }: { initialName: string }) {
-    // shortcut: chỉ lưu state cục bộ (reload là mất), thay bằng update Supabase khi có data layer.
-    const [name, setName] = useState(initialName);
+export function MachineNameEditor({ id, name }: { id: string; name: string }) {
     const [editing, setEditing] = useState(false);
     const editBtn = useRef<HTMLButtonElement>(null);
     const form = useForm({ resolver: zodResolver(schema), defaultValues: { name } });
@@ -52,9 +51,10 @@ export function MachineNameEditor({ initialName }: { initialName: string }) {
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit((v) => {
-                    setName(v.name);
-                    close();
+                onSubmit={form.handleSubmit(async (v) => {
+                    const { error } = await renameMachine(id, v.name);
+                    if (error) form.setError('name', { message: error });
+                    else close();
                 })}
                 onKeyDown={(e) => e.key === 'Escape' && close()}
                 className="flex flex-col gap-2.5"
@@ -87,7 +87,7 @@ export function MachineNameEditor({ initialName }: { initialName: string }) {
                     >
                         Huỷ
                     </Button>
-                    <Button type="submit" size="lg">
+                    <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
                         Lưu tên
                     </Button>
                 </div>

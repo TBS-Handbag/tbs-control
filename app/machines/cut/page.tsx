@@ -1,8 +1,11 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { LuLightbulb } from 'react-icons/lu';
+import { Loading } from '@/components/loading';
 import { OrderProgress } from '@/components/machines/order-progress';
 import { PageHeader } from '@/components/machines/page-header';
 import { STATUS_STYLE } from '@/components/machines/status-pill';
+import { getMachines } from '@/lib/data/get-machines';
 import { AREAS, CUT_GROUPS, type Machine, machinesByArea, statusOf } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
@@ -25,7 +28,15 @@ function suggestRebalance(machines: Machine[]) {
 }
 
 export default function CutAreaPage() {
-    const machines = machinesByArea('cut');
+    return (
+        <Suspense fallback={<Loading />}>
+            <CutArea />
+        </Suspense>
+    );
+}
+
+async function CutArea() {
+    const machines = machinesByArea(await getMachines(), 'cut');
     const hint = suggestRebalance(machines);
 
     return (
