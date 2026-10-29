@@ -8,12 +8,13 @@ export const STATUS_STYLE: Record<
 > = {
     run: {
         label: 'Đang Hoạt động',
-        pill: 'bg-run-bg text-run-fg',
+        pill: 'bg-green-600 text-run-fg',
         dot: 'bg-run',
         cell: 'bg-white/5 border-run-line',
         // máy Hoạt động bình thường không tô đặc, để vàng/đỏ nổi lên
         band: 'bg-run-band text-run-fg',
-        chip: 'bg-white/90 text-ink',
+        // TV: chip trắng bị lóa trên tivi, dùng nền tối trong suốt
+        chip: 'bg-ink/40 text-white',
     },
     idle: {
         label: 'Hết lệnh chờ',
@@ -29,7 +30,7 @@ export const STATUS_STYLE: Record<
         dot: 'bg-stop',
         cell: 'bg-stop-cell border-stop-line',
         band: 'bg-stop text-stop-on',
-        chip: 'bg-stop-on text-stop',
+        chip: 'bg-ink/40 text-white',
     },
 };
 

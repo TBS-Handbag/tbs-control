@@ -96,7 +96,7 @@ export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
                         <LuX aria-hidden="true" />
                     </Button>
                 </div>
-                {fields.map((f, i) => (
+                {fields.map((f) => (
                     <FormField
                         key={f.name}
                         control={form.control}
@@ -107,7 +107,8 @@ export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
                                 <FormControl>
                                     <TimeField
                                         aria-label={chainStart ? 'Thời lượng (giờ:phút)' : `Giờ ${f.label.toLowerCase()}`}
-                                        autoFocus={i === 0}
+                                        // start đã có mặc định (giờ hiện tại) nên focus thẳng vào ô cần nhập
+                                        autoFocus={f.name !== 'start'}
                                         isInvalid={!!fieldState.error}
                                         value={field.value ? parseTime(field.value) : null}
                                         onChange={(v) => field.onChange(v?.toString() ?? '')}

@@ -48,7 +48,7 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
                     Tiếp:
                     {next ? (
                         <>
-                            <b className="font-bold">{next.code}</b>
+                            <b className="font-bold">{next.code} :</b>
                             <span className="tabular-nums">{timeRange(next)}</span>
                         </>
                     ) : (
