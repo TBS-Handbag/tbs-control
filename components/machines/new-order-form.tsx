@@ -1,24 +1,24 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { parseDateTime } from '@internationalized/date';
+import { getLocalTimeZone, parseTime, today } from '@internationalized/date';
 import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { LuX } from 'react-icons/lu';
 import { z } from 'zod';
 import { cardClass } from '@/components/machines/detail-section';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { TimeField } from '@/components/ui/time-field';
 import { cn } from '@/lib/utils';
 
 const schema = z
     .object({
-        start: z.string().min(1, 'Chọn thời gian bắt đầu'),
-        end: z.string().min(1, 'Chọn thời gian kết thúc'),
+        start: z.string().min(1, 'Nhập giờ bắt đầu'),
+        end: z.string().min(1, 'Nhập giờ kết thúc'),
     })
-    // chuỗi ISO cùng định dạng (CalendarDateTime.toString()) nên so sánh chuỗi là đúng thứ tự thời gian
-    .refine((v) => v.end > v.start, { message: 'Thời gian kết thúc phải sau thời gian bắt đầu', path: ['end'] });
+    // chuỗi HH:mm:ss cùng định dạng (Time.toString()) nên so sánh chuỗi là đúng thứ tự thời gian
+    .refine((v) => v.end > v.start, { message: 'Giờ kết thúc phải sau giờ bắt đầu', path: ['end'] });
 
 const FIELDS = [
     { name: 'start', label: 'Bắt đầu' },
@@ -28,6 +28,8 @@ const FIELDS = [
 export function NewOrderForm({ onClose }: { onClose: () => void }) {
     const titleId = useId();
     const form = useForm({ resolver: zodResolver(schema), defaultValues: { start: '', end: '' } });
+    // ngày của lệnh luôn là hôm nay; khi lưu: date.toCalendarDateTime(parseTime(start))
+    const date = today(getLocalTimeZone());
 
     return (
         <Form {...form}>
@@ -39,9 +41,14 @@ export function NewOrderForm({ onClose }: { onClose: () => void }) {
                 className={cn(cardClass, 'flex flex-col gap-4 p-4 border-main/30')}
             >
                 <div className="flex justify-between items-center gap-2 -mt-1 -mr-1">
-                    <h3 id={titleId} className="font-semibold text-base">
-                        Tạo lệnh mới
-                    </h3>
+                    <div>
+                        <h3 id={titleId} className="font-semibold text-base">
+                            Tạo lệnh mới
+                        </h3>
+                        <p className="text-subText text-sm">
+                            Hôm nay, {date.toDate(getLocalTimeZone()).toLocaleDateString('vi-VN')}
+                        </p>
+                    </div>
                     <Button
                         type="button"
                         variant="ghost"
@@ -62,12 +69,11 @@ export function NewOrderForm({ onClose }: { onClose: () => void }) {
                             <FormItem className="gap-1.5">
                                 <FormLabel className="font-medium text-labelText">{f.label}</FormLabel>
                                 <FormControl>
-                                    <DatePicker
-                                        aria-label={`Thời gian ${f.label.toLowerCase()}`}
-                                        granularity="minute"
+                                    <TimeField
+                                        aria-label={`Giờ ${f.label.toLowerCase()}`}
                                         autoFocus={i === 0}
                                         isInvalid={!!fieldState.error}
-                                        value={field.value ? parseDateTime(field.value) : null}
+                                        value={field.value ? parseTime(field.value) : null}
                                         onChange={(v) => field.onChange(v?.toString() ?? '')}
                                         onBlur={field.onBlur}
                                     />
