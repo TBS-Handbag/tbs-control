@@ -34,7 +34,7 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
                 </span>
             </div>
 
-            <div className="flex flex-col gap-2 px-3 py-2 min-h-0">
+            <div className={cn('flex flex-col px-3 pb-2 min-h-0', compact ? 'gap-2 pt-2' : 'gap-4 pt-4')}>
                 {m.current ? (
                     <p className="flex items-baseline gap-2 min-w-0 font-extrabold text-white text-2xl">
                         {m.current.code} :
