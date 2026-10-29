@@ -23,7 +23,7 @@ const dayLabel = (iso: string) =>
 
 type Props = { initialCurrent: Order | null; initialQueue: Order[] };
 
-/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh và Nhàn rỗi sớm. */
+/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh và Dừng sớm. */
 export function OrderQueue({ initialCurrent, initialQueue }: Props) {
     // shortcut: chỉ lưu state cục bộ (reload là mất, pill trạng thái máy phía trên không đổi theo);
     // thay bằng server action + revalidate khi có data layer.
@@ -57,8 +57,8 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
         setQueue(next.queue);
         setAnnounce(
             next.current
-                ? `Đã Nhàn rỗi ${current.code}, ${next.current.code} bắt đầu Hoạt động`
-                : `Đã Nhàn rỗi ${current.code}, máy chuyển sang Nhàn rỗi`,
+                ? `Đã dừng ${current.code}, ${next.current.code} bắt đầu Hoạt động`
+                : `Đã dừng ${current.code}, máy chuyển sang Nhàn rỗi`,
         );
     };
 
@@ -158,7 +158,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                         ref={stopBtn}
                                                         type="button"
                                                         variant="outline"
-                                                        aria-label={`Nhàn rỗi sớm lệnh ${o.code}`}
+                                                        aria-label={`Dừng sớm lệnh ${o.code}`}
                                                         onClick={() => {
                                                             setTarget({ code: o.code, next: queue[0]?.code });
                                                             setConfirming(true);
@@ -167,7 +167,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                     >
                                                         <LuCircleStop aria-hidden="true" />
                                                         {/* chữ ngắn để màn 320px không cắt mã lệnh; aria-label đã đủ nghĩa */}
-                                                        Nhàn rỗi
+                                                        Dừng
                                                     </Button>
                                                 </>
                                             ) : (
@@ -189,13 +189,13 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                     showCloseButton={false}
                     className="rounded-2xl"
                     onCloseAutoFocus={(e) => {
-                        // nút Nhàn rỗi sớm cũ đã unmount sau khi Nhàn rỗi: focus nút của lệnh Hoạt động mới, Hết lệnh thì về Tạo lệnh
+                        // nút Dừng cũ đã unmount sau khi dừng: focus nút của lệnh Hoạt động mới, Hết lệnh thì về Tạo lệnh
                         e.preventDefault();
                         (stopBtn.current ?? toggleBtn.current)?.focus();
                     }}
                 >
                     <DialogHeader>
-                        <DialogTitle>Nhàn rỗi sớm lệnh {target.code}?</DialogTitle>
+                        <DialogTitle>Dừng lệnh {target.code}?</DialogTitle>
                         <DialogDescription>
                             {target.next
                                 ? `${target.next} sẽ Hoạt động ngay, các lệnh chờ sau được dời lên sớm hơn.`
@@ -217,7 +217,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                             }}
                             className="bg-stop hover:bg-stop/90 text-white"
                         >
-                            Nhàn rỗi lệnh
+                            Dừng lệnh
                         </Button>
                     </DialogFooter>
                 </DialogContent>

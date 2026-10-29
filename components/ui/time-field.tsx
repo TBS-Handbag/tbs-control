@@ -11,10 +11,23 @@ import {
 import { cn } from '@/lib/utils';
 
 /** TimeField của React Aria, style theo shadcn + brand token. Locale vi-VN, giờ 24h. */
-export function TimeField<T extends TimeValue>({ className, ...props }: TimeFieldProps<T> & { className?: string }) {
+export function TimeField<T extends TimeValue>({
+    className,
+    onKeyDown,
+    ...props
+}: TimeFieldProps<T> & { className?: string }) {
     return (
         <I18nProvider locale="vi-VN">
-            <AriaTimeField hourCycle={24} {...props} className={cn('group flex flex-col', className)}>
+            <AriaTimeField
+                hourCycle={24}
+                {...props}
+                // segment là contenteditable nên Enter không tự submit form như <input>
+                onKeyDown={(e) => {
+                    onKeyDown?.(e);
+                    if (e.key === 'Enter') (e.target as HTMLElement).closest('form')?.requestSubmit();
+                }}
+                className={cn('group flex flex-col', className)}
+            >
                 <DateInput className="flex items-center bg-background px-3 border border-input group-data-[invalid]:border-destructive rounded-xl focus-within:ring-1 focus-within:ring-ring h-12 text-base">
                     {(segment) => (
                         <DateSegment
