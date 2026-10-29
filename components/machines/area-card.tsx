@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { IconType } from 'react-icons';
 import { LuChevronRight } from 'react-icons/lu';
-import { STATUS_STYLE } from '@/components/machines/status-pill';
+import { STATUS_STYLE, StatusCounts } from '@/components/machines/status-pill';
 import type { Status } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
@@ -10,19 +10,14 @@ type Props = {
     title: string;
     meta: string;
     icon: IconType;
-    run: number;
-    idle: number;
-    stop: number;
+    counts: Record<Status, number>;
 };
 
-export function AreaCard({ href, title, meta, icon: Icon, run, idle, stop }: Props) {
-    const counts: [Status, number, string][] = [
-        ['run', run, 'chạy'],
-        ['idle', idle, 'chờ'],
-        ['stop', stop, 'dừng'],
-    ];
+const ORDER: Status[] = ['run', 'idle', 'stop'];
+
+export function AreaCard({ href, title, meta, icon: Icon, counts }: Props) {
     // mỗi vạch = 1 máy, xếp theo trạng thái
-    const ticks = counts.flatMap(([s, n]) => Array<Status>(n).fill(s));
+    const ticks = ORDER.flatMap((s) => Array<Status>(counts[s]).fill(s));
 
     return (
         <Link
@@ -46,14 +41,7 @@ export function AreaCard({ href, title, meta, icon: Icon, run, idle, stop }: Pro
                 ))}
             </span>
 
-            <span className="flex gap-4 text-subText text-base">
-                {counts.map(([s, n, label]) => (
-                    <span key={s} className="flex items-center gap-1.5">
-                        <span aria-hidden="true" className={cn('rounded-full size-2', STATUS_STYLE[s].dot)} />
-                        <span className="font-semibold text-mainText">{n}</span> {label}
-                    </span>
-                ))}
-            </span>
+            <StatusCounts counts={counts} className="text-base" />
         </Link>
     );
 }

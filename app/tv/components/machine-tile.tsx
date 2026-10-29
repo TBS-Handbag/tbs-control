@@ -1,5 +1,4 @@
-import { LuClipboardCheck } from 'react-icons/lu';
-import { MdManageAccounts } from 'react-icons/md';
+import { LuClipboardCheck, LuUserCog } from 'react-icons/lu';
 import { STATUS_STYLE } from '@/components/machines/status-pill';
 import { type Machine, formatDateTime, statusOf } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
@@ -12,7 +11,7 @@ function Worker({ icon: Icon, label, names }: { icon: typeof LuClipboardCheck; l
         <p className="flex items-center gap-2 min-w-0 font-semibold text-lg">
             <Icon aria-label={label} className="size-6 text-subText shrink-0" />
             {names.length ? (
-                <span className="">{names.join(', ')}</span>
+                <span>{names.join(', ')}</span>
             ) : (
                 <span className="text-iconMuted truncate italic">Chưa phân công</span>
             )}
@@ -29,20 +28,20 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
             className={cn('flex flex-col rounded-xl min-w-0 min-h-0 overflow-hidden', s.cell)}
         >
             <div className={cn('flex items-center gap-2 px-3 min-w-0 shrink-0', compact ? 'py-1' : 'py-1.5', s.band)}>
-                <h3 className={cn('flex-1 min-w-0 font-extrabold text-xl truncate')}>{m.name}</h3>
+                <h3 className="flex-1 min-w-0 font-extrabold text-xl truncate">{m.name}</h3>
                 <span className={cn('px-2.5 rounded-full font-extrabold tabular-nums text-lg shrink-0', s.chip)}>
                     {m.queue.length} chờ
                 </span>
             </div>
 
-            <div className={cn('flex flex-col gap-2 px-3 py-2 min-h-0')}>
+            <div className="flex flex-col gap-2 px-3 py-2 min-h-0">
                 {m.current ? (
                     <p className="flex items-baseline gap-2 min-w-0 font-extrabold text-white text-2xl">
                         {m.current.code} :
                         <span className="font-semibold tabular-nums text-white truncate">{timeRange(m.current)}</span>
                     </p>
                 ) : (
-                    <p className={cn('font-extrabold text-stop-fg text-xl uppercase tracking-wide')}>Không hoạt động</p>
+                    <p className="font-extrabold text-stop-fg text-xl uppercase tracking-wide">Không hoạt động</p>
                 )}
 
                 <p className="flex gap-2 font-semibold text-white text-lg truncate">
@@ -57,7 +56,7 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
                     )}
                 </p>
 
-                {!compact && <Worker icon={MdManageAccounts} label="Điều hành" names={m.operators} />}
+                {!compact && <Worker icon={LuUserCog} label="Điều hành" names={m.operators} />}
                 {!compact && <Worker icon={LuClipboardCheck} label="Kiểm đếm" names={m.counters} />}
             </div>
         </article>

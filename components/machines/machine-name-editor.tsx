@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaPencil } from 'react-icons/fa6';
+import { LuPencil } from 'react-icons/lu';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -43,7 +43,7 @@ export function MachineNameEditor({ initialName }: { initialName: string }) {
                     onClick={open}
                     className="border-line-strong rounded-xl size-9 text-main hover:text-main shrink-0"
                 >
-                    <FaPencil aria-hidden="true" />
+                    <LuPencil aria-hidden="true" />
                 </Button>
             </div>
         );
@@ -81,12 +81,13 @@ export function MachineNameEditor({ initialName }: { initialName: string }) {
                     <Button
                         type="button"
                         variant="outline"
+                        size="lg"
                         onClick={close}
-                        className="border-line-strong rounded-xl h-11 font-semibold text-base"
+                        className="border-line-strong"
                     >
                         Huỷ
                     </Button>
-                    <Button type="submit" className="rounded-xl h-11 font-semibold text-base">
+                    <Button type="submit" size="lg">
                         Lưu tên
                     </Button>
                 </div>

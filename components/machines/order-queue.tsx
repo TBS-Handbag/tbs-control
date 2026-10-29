@@ -23,7 +23,7 @@ const dayLabel = (iso: string) =>
 
 type Props = { initialCurrent: Order | null; initialQueue: Order[] };
 
-/** Card "Hàng chờ": lệnh đang chạy + hàng chờ, nút Tạo lệnh và Dừng sớm. */
+/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh và Nhàn rỗi sớm. */
 export function OrderQueue({ initialCurrent, initialQueue }: Props) {
     // shortcut: chỉ lưu state cục bộ (reload là mất, pill trạng thái máy phía trên không đổi theo);
     // thay bằng server action + revalidate khi có data layer.
@@ -38,7 +38,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
     const toggleBtn = useRef<HTMLButtonElement>(null);
     const stopBtn = useRef<HTMLButtonElement>(null);
 
-    // lệnh đang chạy đứng đầu, sau đó là hàng chờ theo thứ tự
+    // lệnh đang Hoạt động đứng đầu, sau đó là hàng chờ theo thứ tự
     const schedule = [
         ...(current ? [{ ...current, running: true }] : []),
         ...queue.map((o) => ({ ...o, running: false })),
@@ -57,8 +57,8 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
         setQueue(next.queue);
         setAnnounce(
             next.current
-                ? `Đã dừng ${current.code}, ${next.current.code} bắt đầu chạy`
-                : `Đã dừng ${current.code}, máy chuyển sang dừng`,
+                ? `Đã Nhàn rỗi ${current.code}, ${next.current.code} bắt đầu Hoạt động`
+                : `Đã Nhàn rỗi ${current.code}, máy chuyển sang Nhàn rỗi`,
         );
     };
 
@@ -91,7 +91,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                         </span>
                         <div className="flex flex-col gap-0.5">
                             <p className="font-semibold text-sm">Chưa có lệnh nào</p>
-                            <p className="text-subText text-xs">Máy tự chuyển sang hoạt động khi có lệnh chạy.</p>
+                            <p className="text-subText text-xs">Máy tự chuyển sang hoạt động khi có lệnh Hoạt động.</p>
                         </div>
                     </div>
                 ) : (
@@ -117,7 +117,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                         <div
                                             className={cn(
                                                 'flex items-center gap-2.5 py-3.5',
-                                                // dòng đang chạy đã có nền riêng, không cần kẻ ngăn
+                                                // dòng đang Hoạt động đã có nền riêng, không cần kẻ ngăn
                                                 !newDay && !schedule[i - 1].running && 'border-t border-line-soft',
                                             )}
                                         >
@@ -153,12 +153,12 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                             {o.running ? (
                                                 <>
                                                     {/* nền xanh của hàng chỉ là tín hiệu nhìn, đọc trạng thái cho trình đọc màn hình */}
-                                                    <span className="sr-only">Đang chạy</span>
+                                                    <span className="sr-only">Đang Hoạt động</span>
                                                     <Button
                                                         ref={stopBtn}
                                                         type="button"
                                                         variant="outline"
-                                                        aria-label={`Dừng sớm lệnh ${o.code}`}
+                                                        aria-label={`Nhàn rỗi sớm lệnh ${o.code}`}
                                                         onClick={() => {
                                                             setTarget({ code: o.code, next: queue[0]?.code });
                                                             setConfirming(true);
@@ -167,7 +167,7 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                                                     >
                                                         <LuCircleStop aria-hidden="true" />
                                                         {/* chữ ngắn để màn 320px không cắt mã lệnh; aria-label đã đủ nghĩa */}
-                                                        Dừng
+                                                        Nhàn rỗi
                                                     </Button>
                                                 </>
                                             ) : (
@@ -189,38 +189,35 @@ export function OrderQueue({ initialCurrent, initialQueue }: Props) {
                     showCloseButton={false}
                     className="rounded-2xl"
                     onCloseAutoFocus={(e) => {
-                        // nút Dừng sớm cũ đã unmount sau khi dừng: focus nút của lệnh chạy mới, hết lệnh thì về Tạo lệnh
+                        // nút Nhàn rỗi sớm cũ đã unmount sau khi Nhàn rỗi: focus nút của lệnh Hoạt động mới, Hết lệnh thì về Tạo lệnh
                         e.preventDefault();
                         (stopBtn.current ?? toggleBtn.current)?.focus();
                     }}
                 >
                     <DialogHeader>
-                        <DialogTitle>Dừng sớm lệnh {target.code}?</DialogTitle>
+                        <DialogTitle>Nhàn rỗi sớm lệnh {target.code}?</DialogTitle>
                         <DialogDescription>
                             {target.next
-                                ? `${target.next} sẽ chạy ngay, các lệnh chờ sau được dời lên sớm hơn.`
-                                : 'Không còn lệnh chờ, máy sẽ chuyển sang Dừng.'}
+                                ? `${target.next} sẽ Hoạt động ngay, các lệnh chờ sau được dời lên sớm hơn.`
+                                : 'Không còn lệnh chờ, máy sẽ chuyển sang Nhàn rỗi.'}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="border-line-strong rounded-xl h-11 font-semibold text-base"
-                            >
+                            <Button type="button" variant="outline" size="lg" className="border-line-strong">
                                 Huỷ
                             </Button>
                         </DialogClose>
                         <Button
                             type="button"
+                            size="lg"
                             onClick={() => {
                                 stop();
                                 setConfirming(false);
                             }}
-                            className="bg-stop hover:bg-stop/90 rounded-xl h-11 font-semibold text-white text-base"
+                            className="bg-stop hover:bg-stop/90 text-white"
                         >
-                            Dừng lệnh
+                            Nhàn rỗi lệnh
                         </Button>
                     </DialogFooter>
                 </DialogContent>

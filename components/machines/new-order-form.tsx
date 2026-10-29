@@ -81,12 +81,13 @@ export function NewOrderForm({ onClose }: { onClose: () => void }) {
                     <Button
                         type="button"
                         variant="outline"
+                        size="lg"
                         onClick={onClose}
-                        className="border-line-strong rounded-xl h-11 font-semibold text-base"
+                        className="border-line-strong"
                     >
                         Huỷ
                     </Button>
-                    <Button type="submit" className="rounded-xl h-11 font-semibold text-base">
+                    <Button type="submit" size="lg">
                         Tạo lệnh
                     </Button>
                 </div>

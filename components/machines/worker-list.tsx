@@ -3,34 +3,29 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { LuPlus, LuUserCog, LuUsers, LuX } from 'react-icons/lu';
+import { LuX } from 'react-icons/lu';
 import { z } from 'zod';
 import { cardClass } from '@/components/machines/detail-section';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import type { WorkerRole } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
 const schema = z.object({
     name: z.string().trim().min(1, 'Nhập tên công nhân').max(50, 'Tên tối đa 50 ký tự'),
 });
 
-// icon chọn ở client vì component icon không truyền qua ranh giới server -> client được
-const ROLE_ICON = { operators: LuUserCog, counters: LuUsers };
-
 const normalize = (s: string) => s.trim().replace(/\s+/g, ' ');
 
-type Props = { role: WorkerRole; title: string; initialNames: string[] };
+type Props = { title: string; initialNames: string[] };
 
-export function WorkerList({ role, title, initialNames }: Props) {
+export function WorkerList({ title, initialNames }: Props) {
     // shortcut: chỉ lưu state cục bộ (reload là mất), thay bằng insert/delete Supabase khi có data layer.
     const [names, setNames] = useState(initialNames);
     const [announce, setAnnounce] = useState('');
     const headingId = useId();
     const form = useForm({ resolver: zodResolver(schema), defaultValues: { name: '' } });
     const roleLabel = title.toLowerCase();
-    const Icon = ROLE_ICON[role];
 
     const add = ({ name }: z.infer<typeof schema>) => {
         const value = normalize(name);
@@ -107,7 +102,8 @@ export function WorkerList({ role, title, initialNames }: Props) {
                     <Button
                         type="submit"
                         aria-label={`Thêm công nhân ${roleLabel}`}
-                        className="px-4 rounded-xl h-11 [&_svg]:size-5 font-semibold text-base shrink-0"
+                        size="lg"
+                        className="shrink-0"
                     >
                         Thêm
                     </Button>

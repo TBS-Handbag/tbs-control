@@ -60,7 +60,7 @@ function makeMachine(
         ? { code: `L${++seq}`, start: iso(startHour * 60), end: iso(startHour * 60 + 120) }
         : null;
     let t = startHour * 60 + 120;
-    // máy dừng = hết lệnh, nên không có lệnh hiện tại thì cũng không có lệnh chờ
+    // máy Nhàn rỗi = Hết lệnh, nên không có lệnh hiện tại thì cũng không có lệnh chờ
     const queue = Array.from({ length: current ? queueSize : 0 }, () => {
         const order = { code: `L${++seq}`, start: iso(t), end: iso(t + 90) };
         t += 90;
@@ -99,7 +99,7 @@ export const machinesByArea = (area: Area) => MACHINES.filter((m) => m.area === 
 
 export const getMachine = (id: string) => MACHINES.find((m) => m.id === id);
 
-/** run: đang chạy và còn lệnh chờ · idle: đang chạy lệnh cuối · stop: không có lệnh */
+/** run: đang Hoạt động và còn lệnh chờ · idle: đang Hoạt động lệnh cuối · stop: không có lệnh */
 export type Status = 'run' | 'idle' | 'stop';
 
 export const statusOf = (m: Machine): Status => (!m.current ? 'stop' : m.queue.length ? 'run' : 'idle');
@@ -107,7 +107,8 @@ export const statusOf = (m: Machine): Status => (!m.current ? 'stop' : m.queue.l
 export function stat(list: Machine[]) {
     const count = (s: Status) => list.filter((m) => statusOf(m) === s).length;
     const stop = count('stop');
-    return { total: list.length, active: list.length - stop, run: count('run'), idle: count('idle'), stop };
+    const queued = list.reduce((n, m) => n + m.queue.length, 0);
+    return { total: list.length, active: list.length - stop, run: count('run'), idle: count('idle'), stop, queued };
 }
 
 const MINUTE = 60000;
@@ -116,12 +117,12 @@ const toIso = (d: Date) =>
     `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
 /**
- * Dừng sớm lệnh đang chạy lúc `now`: lệnh chờ #1 chạy ngay, cả hàng chờ dời theo cùng độ lệch
- * (giữ nguyên thời lượng và khoảng nghỉ giữa các lệnh). Hết lệnh chờ thì máy dừng.
+ * Nhàn rỗi sớm lệnh đang Hoạt động lúc `now`: lệnh chờ #1 Hoạt động ngay, cả hàng chờ dời theo cùng độ lệch
+ * (giữ nguyên thời lượng và khoảng nghỉ giữa các lệnh). Hết lệnh chờ thì máy Nhàn rỗi.
  */
 export function stopEarly(current: Order, queue: Order[], now: Date): { current: Order | null; queue: Order[] } {
     if (!queue.length) return { current: null, queue: [] };
-    // làm tròn xuống phút; đồng hồ lệch trước giờ bắt đầu thì coi như dừng ngay lúc bắt đầu
+    // làm tròn xuống phút; đồng hồ lệch trước giờ bắt đầu thì coi như Nhàn rỗi ngay lúc bắt đầu
     const stopAt = Math.max(Math.floor(now.getTime() / MINUTE) * MINUTE, new Date(current.start).getTime());
     const delta = stopAt - new Date(queue[0].start).getTime();
     const move = (s: string) => toIso(new Date(new Date(s).getTime() + delta));

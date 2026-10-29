@@ -7,13 +7,13 @@ export const STATUS_STYLE: Record<
     { label: string; pill: string; dot: string; cell: string; band: string; chip: string }
 > = {
     run: {
-        label: 'Đang chạy',
+        label: 'Đang Hoạt động',
         pill: 'bg-run-bg text-run-fg',
         dot: 'bg-run',
         cell: 'bg-white/5 border-run-line',
-        // máy chạy bình thường không tô đặc, để vàng/đỏ nổi lên
-        band: 'bg-[#16c45a] text-run-fg',
-        chip: 'bg-white/90 text-[#333]',
+        // máy Hoạt động bình thường không tô đặc, để vàng/đỏ nổi lên
+        band: 'bg-run-band text-run-fg',
+        chip: 'bg-white/90 text-ink',
     },
     idle: {
         label: 'Hết lệnh chờ',
@@ -24,7 +24,7 @@ export const STATUS_STYLE: Record<
         chip: 'bg-idle-on text-idle-fg',
     },
     stop: {
-        label: 'Dừng',
+        label: 'Nhàn rỗi',
         pill: 'bg-stop-bg text-stop-fg',
         dot: 'bg-stop',
         cell: 'bg-stop-cell border-stop-line',
@@ -32,6 +32,26 @@ export const STATUS_STYLE: Record<
         chip: 'bg-stop-on text-stop',
     },
 };
+
+const COUNT_LABELS: [Status, string][] = [
+    ['run', 'Hoạt động'],
+    ['idle', 'Hết lệnh'],
+    ['stop', 'Nhàn rỗi'],
+];
+
+/** Dòng đếm máy theo trạng thái: "● 12 Hoạt động  ● 3 Hết lệnh  ● 2 Nhàn rỗi". */
+export function StatusCounts({ counts, className }: { counts: Record<Status, number>; className?: string }) {
+    return (
+        <span className={cn('flex gap-4 text-subText', className)}>
+            {COUNT_LABELS.map(([s, label]) => (
+                <span key={s} className="flex items-center gap-1.5 font-semibold">
+                    <span aria-hidden="true" className={cn('rounded-full size-2', STATUS_STYLE[s].dot)} />
+                    <span className="font-semibold tabular-nums text-mainText">{counts[s]}</span> {label}
+                </span>
+            ))}
+        </span>
+    );
+}
 
 type Props = { status: Status; label?: string; dot?: boolean; solid?: boolean; className?: string };
 

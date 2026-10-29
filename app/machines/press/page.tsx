@@ -5,25 +5,22 @@ import { AREAS, type Status, machinesByArea, stat, statusOf } from '@/lib/data/m
 import { cn } from '@/lib/utils';
 
 // thứ tự ưu tiên: máy cần xử lý lên đầu
-const SECTIONS: { status: Status; title: string; summary: string; tile: string; text: string }[] = [
+const SECTIONS: { status: Status; title: string; tile: string; text: string }[] = [
     {
         status: 'stop',
         title: 'Không hoạt động',
-        summary: 'không hoạt động',
         tile: STATUS_STYLE.stop.cell,
         text: 'text-stop-fg',
     },
     {
         status: 'idle',
-        title: 'Đang chạy, hết lệnh chờ ',
-        summary: 'hết lệnh chờ',
+        title: 'Đang Hoạt động, Hết lệnh chờ',
         tile: STATUS_STYLE.idle.cell,
         text: 'text-idle-fg',
     },
     {
         status: 'run',
-        title: 'Đang chạy, có lệnh chờ',
-        summary: 'có lệnh chờ',
+        title: 'Đang Hoạt động, có lệnh chờ',
         tile: 'bg-card border-line',
         text: 'text-mainText',
     },
@@ -31,7 +28,7 @@ const SECTIONS: { status: Status; title: string; summary: string; tile: string; 
 
 export default function PressAreaPage() {
     const machines = machinesByArea('press');
-    const queued = machines.reduce((sum, m) => sum + m.queue.length, 0);
+    const { queued } = stat(machines);
 
     return (
         <>

@@ -5,11 +5,10 @@ import { AREAS, type Area, machinesByArea, stat } from '@/lib/data/machines';
 export function AreaPanel({ area, children }: { area: Area; children: ReactNode }) {
     const list = machinesByArea(area);
     const s = stat(list);
-    const queued = list.reduce((n, m) => n + m.queue.length, 0);
     return (
         <section
             aria-labelledby={`tv-${area}`}
-            className="flex flex-col gap-3 bg-[#0F172A] p-4 border-2 border-white/10 rounded-2xl min-w-0 min-h-0"
+            className="flex flex-col gap-3 bg-card p-4 border-2 border-white/10 rounded-2xl min-w-0 min-h-0"
         >
             <header className="flex items-center gap-3 mb-1 shrink-0">
                 <div className="flex flex-col flex-1 min-w-0">
@@ -20,22 +19,22 @@ export function AreaPanel({ area, children }: { area: Area; children: ReactNode 
                         {AREAS[area].title}
                     </h2>
                 </div>
-                <StatusPill status="run" label={`${s.run} đang chạy`} className="px-3 font-bold text-lg" />
-                {/* hết lệnh chờ / dừng chỉ tô đặc khi có máy, để mắt nhảy vào chỗ cần xử lý */}
+                <StatusPill status="run" label={`${s.run} đang Hoạt động`} className="px-3 font-bold text-lg" />
+                {/* Hết lệnh chờ / Nhàn rỗi chỉ tô đặc khi có máy, để mắt nhảy vào chỗ cần xử lý */}
                 <StatusPill
                     solid={s.idle > 0}
                     status="idle"
-                    label={`${s.idle} hết lệnh chờ`}
+                    label={`${s.idle} Hết lệnh chờ`}
                     className="px-3 font-bold text-lg"
                 />
                 <StatusPill
                     solid={s.stop > 0}
                     status="stop"
-                    label={`${s.stop} dừng`}
+                    label={`${s.stop} Nhàn rỗi`}
                     className="px-3 font-bold text-lg"
                 />
-                <span className="bg-white px-3 py-0.5 rounded-full font-bold text-[#333] text-lg shrink-0">
-                    {queued} lệnh chờ
+                <span className="bg-white px-3 py-0.5 rounded-full font-bold text-ink text-lg shrink-0">
+                    {s.queued} lệnh chờ
                 </span>
             </header>
             {list.length === 0 ? (

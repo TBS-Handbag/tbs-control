@@ -18,6 +18,7 @@ export default async function MachineDetailPage({ params }: PageProps<'/machines
     if (!m) notFound();
 
     const area = AREAS[m.area];
+    const status = statusOf(m);
     return (
         <>
             <PageHeader title="Chi tiết máy" backHref={area.href} />
@@ -27,12 +28,12 @@ export default async function MachineDetailPage({ params }: PageProps<'/machines
                     {/* không wrap cả dòng để vạch ngăn luôn nằm cạnh pill; màn hẹp thì chữ khu vực tự xuống dòng */}
                     <div className="flex items-center gap-3">
                         <StatusPill
-                            status={statusOf(m)}
-                            label={statusOf(m) === 'run' ? 'Đang hoạt động' : undefined}
+                            status={status}
+                            label={status === 'run' ? 'Đang hoạt động' : undefined}
                             className="px-3 py-1.5 font-medium text-sm"
                         />
                         <span className="pl-3 border-line border-l min-w-0 text-subText text-sm">
-                            {m.area === 'cut' ? `${area.title}` : area.title}
+                            {area.title}
                         </span>
                     </div>
                 </section>
@@ -41,7 +42,7 @@ export default async function MachineDetailPage({ params }: PageProps<'/machines
 
                 <DetailSection title="Công nhân phụ trách">
                     {WORKER_ROLES.map(({ role, title }) => (
-                        <WorkerList key={role} role={role} title={title} initialNames={m[role]} />
+                        <WorkerList key={role} title={title} initialNames={m[role]} />
                     ))}
                 </DetailSection>
             </main>

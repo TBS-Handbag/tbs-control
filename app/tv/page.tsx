@@ -15,12 +15,12 @@ export default function TvPage() {
 
     return (
         // fixed để thoát khung max-w-md của root layout; font gốc scale theo viewport (globals.css .tv-screen)
-        <main className="z-50 fixed inset-0 flex flex-col gap-4 bg-[#0B111E] p-4 overflow-hidden text-mainText tv-screen">
-            <header className="flex items-center gap-6 bg-[#0F172A] px-6 py-4 border-2 border-white/10 rounded-2xl text-white shrink-0">
+        <main className="z-50 fixed inset-0 flex flex-col gap-4 bg-surface p-4 overflow-hidden text-mainText tv-screen">
+            <header className="flex items-center gap-6 bg-card px-6 py-4 border-2 border-white/10 rounded-2xl text-white shrink-0">
                 <h1 className="font-extrabold text-3xl">Bảng ĐH & PP lệnh CUT 1</h1>
-                <span className="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full font-bold text-[#333] text-lg">
+                <span className="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full font-bold text-ink text-lg">
                     <span aria-hidden="true" className="bg-run-light rounded-full size-2.5" />
-                    {total.active}/{total.total} máy đang chạy
+                    {total.active}/{total.total} máy đang Hoạt động
                 </span>
                 <div className="ml-auto">
                     <TvClock />

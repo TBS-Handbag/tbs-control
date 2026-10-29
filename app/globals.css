@@ -15,16 +15,18 @@
         --sub-text: #5b6b64;
         --label-text: #33473f;
         --icon-muted: #7a8c84;
+        --ink: #333333; /* chữ tối trên chip trắng */
         --line: #d8e4de;
         --line-soft: #e6eeea;
         --line-strong: #cbd8d2;
         --run: var(--main);
-        --run-bg: #dcfce7; /* xanh lá nhạt cùng độ sáng idle-bg/stop-bg; main-tint ngả xám, không đọc ra "đang chạy" */
+        --run-bg: #dcfce7; /* xanh lá nhạt cùng độ sáng idle-bg/stop-bg; main-tint ngả xám, không đọc ra "đang Hoạt động" */
         --run-fg: color-mix(in srgb, var(--main) 55%, black); /* main tối lại cho chữ đủ tương phản */
         --run-light: #4ade80; /* chấm sáng trên nền main */
         --run-cell: #ffffff;
         --run-line: #d8e4de;
-        --idle: #ffd60a; /* đang chạy lệnh cuối, hết lệnh chờ; vàng tách hẳn đỏ khi nhìn xa */
+        --run-band: #16c45a; /* dải tên máy Hoạt động trên TV */
+        --idle: #ffd60a; /* đang Hoạt động lệnh cuối, Hết lệnh chờ; vàng tách hẳn đỏ khi nhìn xa */
         --idle-bg: #fef3c7;
         --idle-fg: #92400e;
         --idle-cell: #fffbeb;
@@ -139,8 +141,8 @@ html:has(.tv-screen) {
 
 /* TV: nền than trung tính để màu trạng thái nổi lên; thân ô sáng hơn panel, chữ sáng cho nhìn xa. Chỉ đổi token trong .tv-screen, mobile giữ nguyên */
 .tv-screen {
-    --surface: #090a0c;
-    --card: #14161a; /* panel khu vực */
+    --surface: #0b111e;
+    --card: #0f172a; /* header + panel khu vực */
     --line: #2f3237;
     --line-strong: #5e636e;
     --main-text: #ffffff;
@@ -148,7 +150,7 @@ html:has(.tv-screen) {
     --sub-text: #b2bac4;
     --icon-muted: #929aa4;
     --run: var(--main); /* viền header */
-    --run-bg: color-mix(in srgb, var(--main) 55%, black); /* dải tên máy chạy, chữ trắng */
+    --run-bg: color-mix(in srgb, var(--main) 55%, black); /* dải tên máy Hoạt động, chữ trắng */
     --run-fg: #ffffff;
     --run-cell: #22262b; /* thân ô sáng hơn panel */
     --run-line: var(--main);
