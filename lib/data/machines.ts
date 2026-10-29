@@ -30,7 +30,6 @@ export const WORKER_ROLES: { role: WorkerRole; title: string }[] = [
 const WORKERS: Record<string, Pick<Machine, WorkerRole>> = {
     'trai-td1': { operators: ['Nguyễn Văn An', 'Trần Văn Bình'], counters: ['Lê Thị Cúc'] },
     'trai-td2': { operators: ['Phạm Văn Dũng'], counters: ['Hoàng Thị Em', 'Võ Thị Phượng'] },
-    'cat-td': { operators: ['Đặng Văn Giang'], counters: [] },
     'bullmer-1': { operators: ['Bùi Văn Hải'], counters: ['Đỗ Thị Hoa'] },
     P01: { operators: ['Ngô Văn Khánh'], counters: ['Dương Thị Lan'] },
     P02: { operators: ['Lý Văn Minh', 'Mai Văn Nam'], counters: ['Trịnh Thị Oanh'] },
@@ -88,12 +87,11 @@ export const MACHINES: Machine[] = [
     makeMachine('trai-td1', 'Trải TĐ 1', 'TĐ 1', 'cut', 'Trải', true, 3, 6),
     makeMachine('trai-td2', 'Trải TĐ 2', 'TĐ 2', 'cut', 'Trải', true, 1, 7),
     makeMachine('trai-tc', 'Trải TC', 'TC', 'cut', 'Trải', false, 0, 0),
-    makeMachine('cat-td', 'Cắt TĐ', 'TĐ', 'cut', 'Cắt', true, 2, 6),
     makeMachine('bullmer-1', 'Bullmer 1', '1', 'cut', 'Bullmer', true, 4, 6),
     makeMachine('bullmer-2', 'Bullmer 2', '2', 'cut', 'Bullmer', false, 0, 0),
 ];
 
-export const CUT_GROUPS = ['Trải', 'Cắt', 'Bullmer'];
+export const CUT_GROUPS = ['Trải', 'Bullmer'];
 
 export const machinesByArea = (area: Area) => MACHINES.filter((m) => m.area === area);
 

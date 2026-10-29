@@ -56,7 +56,7 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
                     )}
                 </p>
 
-                {!compact && <Worker icon={LuUserCog} label="Điều hành" names={m.operators} />}
+                <Worker icon={LuUserCog} label="Điều hành" names={m.operators} />
                 {!compact && <Worker icon={LuClipboardCheck} label="Kiểm đếm" names={m.counters} />}
             </div>
         </article>
