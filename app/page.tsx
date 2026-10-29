@@ -25,7 +25,7 @@ export default function Home() {
 
     return (
         <main className="flex flex-col pb-8">
-            <div className="relative flex flex-col gap-3.5 bg-main px-5 pt-7 pb-16 rounded-b-3xl overflow-hidden text-white">
+            <div className="relative bg-main h-40 [clip-path:ellipse(75%_100%_at_50%_0)]">
                 {/* tranh nét đen nền trắng: invert + screen để thành nét sáng trên nền xanh */}
                 <Image
                     src={kite}
@@ -35,16 +35,24 @@ export default function Home() {
                     sizes="(max-width: 448px) 100vw, 448px"
                     className="opacity-100 invert object-cover mix-blend-screen"
                 />
-                <div className="relative flex flex-col gap-1">
-                    <h1 className="font-bold text-2xl leading-tight">Chọn khu vực làm việc</h1>
-                </div>
-                <span className="relative flex items-center self-start gap-2 bg-main-soft px-3 py-1.5 rounded-full font-medium text-sm">
-                    <span aria-hidden="true" className="bg-run-light rounded-full size-2" />
-                    {total.active}/{total.total} máy đang chạy
-                </span>
             </div>
 
-            <div className="relative flex flex-col gap-3.5 -mt-9 px-4">
+            {/* khối tiêu đề nằm giữa mép ảnh: nửa trên đè ảnh, nửa dưới ra nền */}
+            <div className="relative flex items-center gap-4 bg-card shadow-lg shadow-main/10 -mt-10 mx-4 px-5 py-4 border border-line rounded-2xl">
+                <div className="flex flex-col flex-1 gap-0.5 min-w-0">
+                    <h1 className="font-bold text-mainText text-lg leading-tight">Chọn khu vực làm việc</h1>
+                    <p className="text-subText text-sm">Chạm để xem danh sách máy</p>
+                </div>
+                <p className="flex flex-col items-end pl-4 border-line border-l leading-none shrink-0">
+                    <span className="font-bold text-main text-3xl">
+                        {total.active}
+                        <span className="font-medium text-subText text-base">/{total.total}</span>
+                    </span>
+                    <span className="mt-1 text-subText text-xs">máy đang chạy</span>
+                </p>
+            </div>
+
+            <div className="flex flex-col gap-3.5 mt-4 px-4">
                 <AreaCard
                     href={AREAS.cut.href}
                     title={AREAS.cut.title}
@@ -63,9 +71,6 @@ export default function Home() {
                     idle={press.idle}
                     stop={press.stop}
                 />
-                <p className="mx-1 mt-1.5 text-subText text-sm text-center leading-normal">
-                    Chạm vào một khu vực để xem danh sách máy
-                </p>
             </div>
         </main>
     );

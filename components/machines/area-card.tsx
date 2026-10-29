@@ -30,7 +30,7 @@ export function AreaCard({ href, title, meta, icon: Icon, run, idle, stop }: Pro
             className="flex flex-col gap-4 bg-card p-4 border border-line rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring w-full"
         >
             <span className="flex items-center gap-3">
-                <span className="flex justify-center items-center bg-main-tint rounded-xl size-11 text-main shrink-0">
+                <span className="flex justify-center items-center bg-main rounded-xl size-11 text-white shrink-0">
                     <Icon aria-hidden="true" className="size-5" />
                 </span>
                 <span className="flex flex-col flex-1 min-w-0">
