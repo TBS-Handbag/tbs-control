@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { z } from 'zod';
 import { PERSON_NAME } from '@/lib/data/machines';
 import { commit, fromVn, orderCode, readSheet, toVn, type OrderRow, type Sheet } from '@/lib/data/sheet';
@@ -38,6 +38,7 @@ function mutate(fn: (db: Sheet) => Promise<string | void>): Promise<Result> {
         try {
             const error = await fn(await readSheet());
             if (error) return { error };
+            updateTag('sheet');
             revalidatePath('/', 'layout');
             return {};
         } catch (e) {

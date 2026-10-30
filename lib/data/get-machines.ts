@@ -1,11 +1,11 @@
 import { connection } from 'next/server';
 import type { Machine, WorkerRole } from '@/lib/data/machines';
-import { fromVn, orderCode, readSheet, toVn, type OrderRow } from '@/lib/data/sheet';
+import { fromVn, orderCode, readSheetCached, toVn, type OrderRow } from '@/lib/data/sheet';
 
 /** Máy kèm lệnh chưa kết thúc (lệnh nối liền nên lệnh đầu là đang chạy, trừ khi nó chưa tới giờ) và lệnh vừa kết thúc hôm nay. */
 export async function getMachines(id?: string): Promise<Machine[]> {
     await connection();
-    const { machines, orders, workers } = await readSheet();
+    const { machines, orders, workers } = await readSheetCached();
     const now = Date.now();
     const today = fromVn(`${toVn(now).slice(0, 10)}T00:00`);
 

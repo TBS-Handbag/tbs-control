@@ -4,6 +4,7 @@
 //   workers:  machine_id | role | name
 // Auth bằng service account, sheet phải share quyền Editor cho GOOGLE_CLIENT_EMAIL.
 import { createSign } from 'node:crypto';
+import { cacheLife, cacheTag } from 'next/cache';
 import type { Area, WorkerRole } from '@/lib/data/machines';
 
 type Tab = 'machines' | 'orders' | 'workers';
@@ -123,4 +124,13 @@ export async function commit(tab: Tab, { update = [], remove = [], add = [] }: C
             ...(add.length ? [{ appendCells: { sheetId, rows: add.map(cells), fields: 'userEnteredValue' } }] : []),
         ],
     });
+}
+
+/** Bản đọc để hiển thị: cache dùng chung mọi instance Vercel 15 phút, action ghi xong gọi updateTag('sheet').
+ *  Action ghi phải dùng `readSheet()` để lấy số dòng tươi. */
+export async function readSheetCached() {
+    'use cache: remote';
+    cacheLife({ stale: 0, revalidate: 900, expire: 3600 });
+    cacheTag('sheet');
+    return readSheet();
 }

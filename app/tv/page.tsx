@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { AutoRefresh } from '@/components/auto-refresh';
 import { Loading } from '@/components/loading';
 import { getMachines } from '@/lib/data/get-machines';
 import { CUT_GROUPS, machinesByArea, stat } from '@/lib/data/machines';
@@ -12,9 +13,12 @@ export const metadata: Metadata = { title: 'Bảng điều hành – TV' };
 
 export default function TvPage() {
     return (
-        <Suspense fallback={<Loading />}>
-            <TvBoard />
-        </Suspense>
+        <>
+            <Suspense fallback={<Loading />}>
+                <TvBoard />
+            </Suspense>
+            <AutoRefresh />
+        </>
     );
 }
 
