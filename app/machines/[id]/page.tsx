@@ -29,7 +29,8 @@ async function MachineDetail({ params }: Pick<PageProps<'/machines/[id]'>, 'para
     return (
         <>
             <PageHeader title="Chi tiết máy" backHref={area.href} />
-            <main className="flex flex-col gap-4 px-4 pb-12">
+            {/* group/detail: khối Công nhân phụ trách chỉ hiện khi form Tạo lệnh đang mở */}
+            <main className="group/detail flex flex-col gap-4 px-4 pb-12">
                 <section aria-label="Thông tin máy" className={cn(cardClass, 'flex flex-col gap-3 p-4')}>
                     <MachineNameEditor id={m.id} name={m.name} />
                     {/* không wrap cả dòng để vạch ngăn luôn nằm cạnh pill; màn hẹp thì chữ khu vực tự xuống dòng */}
@@ -45,11 +46,13 @@ async function MachineDetail({ params }: Pick<PageProps<'/machines/[id]'>, 'para
 
                 <OrderQueue machineId={m.id} current={m.current} queue={m.queue} />
 
-                <DetailSection title="Công nhân phụ trách">
-                    {WORKER_ROLES.map(({ role, title }) => (
-                        <WorkerList key={role} machineId={m.id} role={role} title={title} names={m[role]} />
-                    ))}
-                </DetailSection>
+                <div className="hidden group-has-[[data-new-order]]/detail:block">
+                    <DetailSection title="Công nhân phụ trách">
+                        {WORKER_ROLES.map(({ role, title }) => (
+                            <WorkerList key={role} machineId={m.id} role={role} title={title} names={m[role]} />
+                        ))}
+                    </DetailSection>
+                </div>
             </main>
         </>
     );

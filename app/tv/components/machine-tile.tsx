@@ -11,7 +11,7 @@ function Worker({ icon: Icon, label, names }: { icon: typeof LuClipboardCheck; l
         <p className="flex items-center gap-2 min-w-0 font-semibold text-lg">
             <Icon aria-label={label} className="size-6 text-subText shrink-0" />
             {names.length ? (
-                <span>{names.join(', ')}</span>
+                <span className="truncate">{names.join(', ')}</span>
             ) : (
                 <span className="text-iconMuted truncate italic">Chưa phân công</span>
             )}
@@ -56,8 +56,10 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
                     )}
                 </p>
 
-                <Worker icon={LuUserCog} label="Điều hành" names={m.operators} />
-                {!compact && <Worker icon={LuClipboardCheck} label="Kiểm đếm" names={m.counters} />}
+                <div className="gap-2 grid grid-cols-2 min-w-0">
+                    <Worker icon={LuUserCog} label="Điều hành" names={m.operators} />
+                    <Worker icon={LuClipboardCheck} label="Kiểm đếm" names={m.counters} />
+                </div>
             </div>
         </article>
     );

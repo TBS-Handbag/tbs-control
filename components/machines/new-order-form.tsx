@@ -83,6 +83,7 @@ export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
         <Form {...form}>
             <form
                 aria-labelledby={titleId}
+                data-new-order
                 onSubmit={submit}
                 onKeyDown={(e) => e.key === 'Escape' && onClose()}
                 className={cn(cardClass, 'flex flex-col gap-4 p-4 border-main/30')}
