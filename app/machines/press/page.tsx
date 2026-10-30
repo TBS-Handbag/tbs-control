@@ -18,14 +18,15 @@ const SECTIONS: { status: Status; title: string; tile: string; text: string }[] 
     {
         status: 'idle',
         title: 'Đang Hoạt động, Hết lệnh chờ',
-        tile: STATUS_STYLE.idle.cell,
+        // nền nhạt, viền đậm màu band TV
+        tile: 'bg-idle-bg border-2 border-idle',
         text: 'text-idle-fg',
     },
     {
         status: 'run',
         title: 'Đang Hoạt động, có lệnh chờ',
-        tile: 'bg-card border-line',
-        text: 'text-mainText',
+        tile: 'bg-run-bg border-2 border-run-band',
+        text: 'text-run-fg',
     },
 ];
 
@@ -90,12 +91,7 @@ async function PressArea() {
                                             )}
                                         >
                                             <span className="font-bold text-xl leading-tight">{m.short}</span>
-                                            <span
-                                                className={cn(
-                                                    'font-semibold text-sm',
-                                                    status === 'run' && 'text-subText',
-                                                )}
-                                            >
+                                            <span className="font-semibold text-sm">
                                                 {status === 'stop' ? 'Nhàn rỗi' : `${m.queue.length} lệnh chờ`}
                                             </span>
                                         </Link>
