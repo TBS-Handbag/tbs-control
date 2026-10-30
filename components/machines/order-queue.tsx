@@ -4,6 +4,7 @@ import { useId, useRef, useState, useTransition } from 'react';
 import { LuCircleStop, LuPause, LuPlus, LuTrash2 } from 'react-icons/lu';
 import { deleteOrder, stopOrder } from '@/app/machines/[id]/actions';
 import { cardClass } from '@/components/machines/detail-section';
+import { ExtendOrderDialog } from '@/components/machines/extend-order-dialog';
 import { NewOrderForm } from '@/components/machines/new-order-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,10 +23,10 @@ import { cn } from '@/lib/utils';
 const dayLabel = (iso: string) =>
     new Date(iso).toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit' });
 
-type Props = { machineId: string; current: Order | null; queue: Order[] };
+type Props = { machineId: string; previous: Order | null; current: Order | null; queue: Order[] };
 
-/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh, Dừng sớm và Xoá lệnh. */
-export function OrderQueue({ machineId, current, queue }: Props) {
+/** Card "Hàng chờ": lệnh vừa kết thúc, lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh, Thêm giờ, Dừng sớm và Xoá lệnh. */
+export function OrderQueue({ machineId, previous, current, queue }: Props) {
     const [pending, startAction] = useTransition();
     const [actionError, setActionError] = useState('');
     const [open, setOpen] = useState(false);
@@ -98,6 +99,25 @@ export function OrderQueue({ machineId, current, queue }: Props) {
             {open && <NewOrderForm machineId={machineId} chainStart={schedule.at(-1)?.end} onClose={close} />}
 
             <div className="border border-line rounded-xl overflow-hidden">
+                {/* app tự chuyển lệnh theo giờ; máy thực tế còn chạy lệnh này thì Thêm giờ để kéo nó lại */}
+                {previous && (
+                    <div className="flex flex-wrap items-center gap-2.5 bg-surface px-3 py-3 border-line border-b">
+                        <span
+                            aria-hidden="true"
+                            className="self-start bg-line-strong mt-1.5 rounded-full size-2 shrink-0"
+                        />
+                        <div className="flex flex-col gap-1 w-11 tabular-nums text-subText leading-tight shrink-0">
+                            <span className="font-semibold">{formatDateTime(previous.start).time}</span>
+                            <span className="sr-only">đến</span>
+                            <span className="text-sm">{formatDateTime(previous.end).time}</span>
+                        </div>
+                        <div className="flex flex-col flex-1 gap-1 pl-2.5 border-line border-l min-w-14 leading-tight">
+                            <span className="font-semibold text-subText truncate">{previous.code}</span>
+                            <span className="text-subText text-sm">Đã kết thúc</span>
+                        </div>
+                        <ExtendOrderDialog machineId={machineId} order={previous} />
+                    </div>
+                )}
                 {schedule.length === 0 ? (
                     <div className="flex items-center gap-3 p-4">
                         <span className="flex justify-center items-center bg-stop-bg rounded-full size-10 text-stop-fg shrink-0">
@@ -130,7 +150,7 @@ export function OrderQueue({ machineId, current, queue }: Props) {
                                     <div className={cn('px-3', o.running && 'bg-run-bg')}>
                                         <div
                                             className={cn(
-                                                'flex items-center gap-2.5 py-3.5',
+                                                'flex flex-wrap items-center gap-2.5 py-3.5',
                                                 // dòng đang Hoạt động đã có nền riêng, không cần kẻ ngăn
                                                 !newDay && !schedule[i - 1].running && 'border-t border-line-soft',
                                             )}
@@ -158,16 +178,18 @@ export function OrderQueue({ machineId, current, queue }: Props) {
                                                 <span className="sr-only">đến</span>
                                                 <span className="text-subText text-sm">{et.time}</span>
                                             </div>
-                                            <div className="flex flex-col flex-1 gap-1 pl-2.5 border-line border-l min-w-0 leading-tight">
+                                            <div className="flex flex-col flex-1 gap-1 pl-2.5 border-line border-l min-w-14 leading-tight">
                                                 <span className="font-semibold truncate">{o.code}</span>
                                                 <span className="text-subText text-sm">
                                                     {formatDuration(o.start, o.end)}
                                                 </span>
                                             </div>
                                             {o.running ? (
-                                                <>
+                                                // màn hẹp không đủ chỗ cho 3 nút thì cả cụm xuống dòng, giữ chỗ cho mã lệnh
+                                                <div className="flex items-center gap-2.5 ml-auto shrink-0">
                                                     {/* nền xanh của hàng chỉ là tín hiệu nhìn, đọc trạng thái cho trình đọc màn hình */}
                                                     <span className="sr-only">Đang Hoạt động</span>
+                                                    <ExtendOrderDialog machineId={machineId} order={o} />
                                                     <Button
                                                         ref={stopBtn}
                                                         type="button"
@@ -202,7 +224,7 @@ export function OrderQueue({ machineId, current, queue }: Props) {
                                                     >
                                                         <LuTrash2 aria-hidden="true" />
                                                     </Button>
-                                                </>
+                                                </div>
                                             ) : (
                                                 <>
                                                     <span className="tabular-nums text-subText text-sm shrink-0">

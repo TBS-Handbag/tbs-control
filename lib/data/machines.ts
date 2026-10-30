@@ -11,6 +11,8 @@ export type Machine = {
     short: string;
     area: Area;
     group: string;
+    /** Lệnh kết thúc gần nhất hôm nay, để thêm giờ khi máy thực tế còn chạy lệnh này. */
+    previous: Order | null;
     /** Lệnh đang chạy theo giờ hiện tại; null khi máy Nhàn rỗi. */
     current: Order | null;
     queue: Order[];

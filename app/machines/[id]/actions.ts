@@ -85,6 +85,14 @@ export async function stopOrder(id: string): Promise<Result> {
     return done(error);
 }
 
+/** Lệnh đang Hoạt động / vừa kết thúc chạy quá giờ: dời giờ kết thúc tới `end` (HH:mm), hàng chờ lùi theo. */
+export async function extendOrder(id: string, orderId: number, end: string): Promise<Result> {
+    if (!Number.isSafeInteger(orderId) || !time.safeParse(end).success) return invalid;
+    const supabase = await createClient();
+    const { error } = await supabase.rpc('extend_order', { p_machine: id, p_order: orderId, p_end: end });
+    return done(error);
+}
+
 /** Xoá hẳn 1 lệnh (chờ hoặc đang Hoạt động), các lệnh sau dời lên. */
 export async function deleteOrder(id: string, orderId: number): Promise<Result> {
     if (!Number.isSafeInteger(orderId)) return invalid;

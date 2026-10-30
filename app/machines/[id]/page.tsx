@@ -44,7 +44,7 @@ async function MachineDetail({ params }: Pick<PageProps<'/machines/[id]'>, 'para
                     </div>
                 </section>
 
-                <OrderQueue machineId={m.id} current={m.current} queue={m.queue} />
+                <OrderQueue machineId={m.id} previous={m.previous} current={m.current} queue={m.queue} />
 
                 <div className="hidden group-has-[[data-new-order]]/detail:block">
                     <DetailSection title="Công nhân phụ trách">
