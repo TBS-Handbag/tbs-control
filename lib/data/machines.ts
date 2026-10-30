@@ -1,4 +1,4 @@
-// Kiểu + hàm thuần dùng chung server/client. Query Supabase nằm ở `get-machines.ts` (chỉ server).
+// Kiểu + hàm thuần dùng chung server/client. Đọc Google Sheet nằm ở `get-machines.ts` (chỉ server).
 
 export type Area = 'cut' | 'press';
 
