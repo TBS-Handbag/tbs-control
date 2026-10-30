@@ -18,7 +18,8 @@ export const STATUS_STYLE: Record<
     },
     idle: {
         label: 'Hết lệnh chờ',
-        pill: 'bg-idle-bg text-idle-fg',
+        // cùng vàng đặc với band TV cho thống nhất
+        pill: 'bg-idle text-idle-on',
         dot: 'bg-idle',
         cell: 'bg-idle-cell border-idle-line',
         band: 'bg-idle text-idle-on',
