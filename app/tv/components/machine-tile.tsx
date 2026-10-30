@@ -56,7 +56,7 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
                     )}
                 </p>
 
-                <div className="gap-2 grid grid-cols-2 min-w-0">
+                <div className={cn('grid min-w-0', compact ? 'gap-2 grid-cols-2' : 'gap-4')}>
                     <Worker icon={LuUserCog} label="Điều hành" names={m.operators} />
                     <Worker icon={LuClipboardCheck} label="Kiểm đếm" names={m.counters} />
                 </div>
