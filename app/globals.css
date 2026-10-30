@@ -10,7 +10,7 @@
         --main-tint: color-mix(in srgb, var(--main) 10%, white); /* ô icon, badge nhạt */
         --main-muted: #3d6b58; /* eyebrow */
         --on-main-sub: #bfd8cc; /* chữ phụ trên nền main */
-        --surface: #f9f9f9; /* nền app: xám trung tính nhẹ */
+        --surface: #f5f5f5; /* nền app: xám trung tính nhẹ */
         --main-text: #10241c;
         --sub-text: #5b6b64;
         --label-text: #33473f;

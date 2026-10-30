@@ -14,19 +14,32 @@ import { TimeField } from '@/components/ui/time-field';
 import { formatDateTime } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
+// lệnh phải kết thúc muộn nhất 22:00 ngày bắt đầu; server (create_order) cũng chặn
+const DEADLINE = 22 * 60;
+// "HH:mm..." -> số phút
+const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+const hhmm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+
 // máy còn lệnh: chỉ nhập thời lượng (nối sau lệnh cuối); máy trống: chọn giờ bắt đầu/kết thúc hôm nay
-const makeSchema = (chained: boolean) =>
+const makeSchema = (chainStart?: string) =>
     z.object({ start: z.string(), end: z.string(), duration: z.string() }).superRefine((v, ctx) => {
-        const issue = (path: keyof typeof v, message: string) => ctx.addIssue({ code: 'custom', path: [path], message });
-        if (chained) {
-            if (!v.duration) issue('duration', 'Nhập thời lượng');
+        const issue = (path: keyof typeof v, message: string) =>
+            ctx.addIssue({ code: 'custom', path: [path], message });
+        if (chainStart) {
+            const max = DEADLINE - minutes(chainStart.slice(11, 16));
+            if (max <= 0) issue('duration', 'Đã quá 22:00, không tạo thêm lệnh trong ngày');
+            else if (!v.duration) issue('duration', 'Nhập thời lượng');
             else if (v.duration === '00:00:00') issue('duration', 'Thời lượng phải lớn hơn 0');
+            else if (minutes(v.duration) > max)
+                issue('duration', `Lệnh phải kết thúc trước 22:00, thời lượng tối đa ${hhmm(max)}`);
             return;
         }
         if (!v.start) issue('start', 'Nhập giờ bắt đầu');
+        else if (minutes(v.start) >= DEADLINE) issue('start', 'Đã quá 22:00, không tạo thêm lệnh trong ngày');
         if (!v.end) issue('end', 'Nhập giờ kết thúc');
         // chuỗi HH:mm:ss cùng định dạng (Time.toString()) nên so sánh chuỗi là đúng thứ tự thời gian
         else if (v.start && v.end <= v.start) issue('end', 'Giờ kết thúc phải sau giờ bắt đầu');
+        else if (minutes(v.end) > DEADLINE) issue('end', 'Giờ kết thúc muộn nhất là 22:00');
     });
 
 const RANGE_FIELDS = [
@@ -45,7 +58,7 @@ type Props = {
 export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
     const titleId = useId();
     const form = useForm({
-        resolver: zodResolver(makeSchema(!!chainStart)),
+        resolver: zodResolver(makeSchema(chainStart)),
         // máy trống: giờ bắt đầu mặc định là phút hiện tại, người dùng sửa được
         defaultValues: {
             start: chainStart ? '' : toTime(now(getLocalTimeZone())).set({ second: 0, millisecond: 0 }).toString(),
@@ -106,7 +119,9 @@ export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
                                 <FormLabel className="font-medium text-labelText">{f.label}</FormLabel>
                                 <FormControl>
                                     <TimeField
-                                        aria-label={chainStart ? 'Thời lượng (giờ:phút)' : `Giờ ${f.label.toLowerCase()}`}
+                                        aria-label={
+                                            chainStart ? 'Thời lượng (giờ:phút)' : `Giờ ${f.label.toLowerCase()}`
+                                        }
                                         // start đã có mặc định (giờ hiện tại) nên focus thẳng vào ô cần nhập
                                         autoFocus={f.name !== 'start'}
                                         isInvalid={!!fieldState.error}
@@ -121,13 +136,7 @@ export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
                     />
                 ))}
                 <div className="gap-2.5 grid grid-cols-2 pt-1">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={onClose}
-                        className="border-line-strong"
-                    >
+                    <Button type="button" variant="outline" size="lg" onClick={onClose} className="border-line-strong">
                         Huỷ
                     </Button>
                     <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>

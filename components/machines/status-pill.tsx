@@ -8,7 +8,7 @@ export const STATUS_STYLE: Record<
 > = {
     run: {
         label: 'Đang Hoạt động',
-        pill: 'bg-green-600 text-run-fg',
+        pill: 'bg-run-bg text-run-fg',
         dot: 'bg-run',
         cell: 'bg-white/5 border-run-line',
         // máy Hoạt động bình thường không tô đặc, để vàng/đỏ nổi lên

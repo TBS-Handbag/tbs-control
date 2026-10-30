@@ -24,15 +24,17 @@ const dayLabel = (iso: string) =>
 
 type Props = { machineId: string; current: Order | null; queue: Order[] };
 
-/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh, Dừng sớm và Xoá lệnh chờ. */
+/** Card "Hàng chờ": lệnh đang Hoạt động + hàng chờ, nút Tạo lệnh, Dừng sớm và Xoá lệnh. */
 export function OrderQueue({ machineId, current, queue }: Props) {
     const [pending, startAction] = useTransition();
     const [actionError, setActionError] = useState('');
     const [open, setOpen] = useState(false);
     const [confirming, setConfirming] = useState(false);
     // chụp nội dung lúc mở dialog để chữ không đổi sang lệnh mới trong lúc dialog đang đóng;
-    // có id là xoá lệnh chờ đó, không có là dừng lệnh đang Hoạt động
-    const [target, setTarget] = useState<{ id?: number; code: string; next?: string }>({ code: '' });
+    // có id là xoá lệnh đó, không có là dừng lệnh đang Hoạt động; running: lệnh bị xoá đang Hoạt động
+    const [target, setTarget] = useState<{ id?: number; code: string; next?: string; running?: boolean }>({
+        code: '',
+    });
     const [announce, setAnnounce] = useState('');
     const headingId = useId();
     const toggleBtn = useRef<HTMLButtonElement>(null);
@@ -64,12 +66,13 @@ export function OrderQueue({ machineId, current, queue }: Props) {
             // lỗi thì giữ dialog mở để hiện lỗi và cho bấm lại
             if (error) return setActionError(error);
             setConfirming(false);
+            const verb = target.id ? 'xoá' : 'dừng';
             setAnnounce(
-                target.id
+                target.id && !target.running
                     ? `Đã xoá ${target.code}`
                     : target.next
-                      ? `Đã dừng ${target.code}, ${target.next} bắt đầu Hoạt động`
-                      : `Đã dừng ${target.code}, máy chuyển sang Nhàn rỗi`,
+                      ? `Đã ${verb} ${target.code}, ${target.next} bắt đầu Hoạt động`
+                      : `Đã ${verb} ${target.code}, máy chuyển sang Nhàn rỗi`,
             );
         });
 
@@ -92,9 +95,7 @@ export function OrderQueue({ machineId, current, queue }: Props) {
                     </Button>
                 )}
             </div>
-            {open && (
-                <NewOrderForm machineId={machineId} chainStart={schedule.at(-1)?.end} onClose={close} />
-            )}
+            {open && <NewOrderForm machineId={machineId} chainStart={schedule.at(-1)?.end} onClose={close} />}
 
             <div className="border border-line rounded-xl overflow-hidden">
                 {schedule.length === 0 ? (
@@ -181,6 +182,26 @@ export function OrderQueue({ machineId, current, queue }: Props) {
                                                         {/* chữ ngắn để màn 320px không cắt mã lệnh; aria-label đã đủ nghĩa */}
                                                         Dừng
                                                     </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        aria-label={`Xoá lệnh ${o.code}`}
+                                                        onClick={(e) =>
+                                                            ask(
+                                                                {
+                                                                    id: o.id,
+                                                                    code: o.code,
+                                                                    next: queue[0]?.code,
+                                                                    running: true,
+                                                                },
+                                                                e.currentTarget,
+                                                            )
+                                                        }
+                                                        className="-mr-1 rounded-full size-9 text-subText hover:text-stop-fg shrink-0"
+                                                    >
+                                                        <LuTrash2 aria-hidden="true" />
+                                                    </Button>
                                                 </>
                                             ) : (
                                                 <>
@@ -229,7 +250,7 @@ export function OrderQueue({ machineId, current, queue }: Props) {
                             {target.id ? 'Xoá' : 'Dừng'} lệnh {target.code}?
                         </DialogTitle>
                         <DialogDescription>
-                            {target.id
+                            {target.id && !target.running
                                 ? target.next
                                     ? `${target.next} và các lệnh chờ sau được dời lên sớm hơn.`
                                     : 'Lệnh bị xoá khỏi hàng chờ.'

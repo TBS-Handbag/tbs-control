@@ -37,7 +37,7 @@ async function MachineDetail({ params }: Pick<PageProps<'/machines/[id]'>, 'para
                         <StatusPill
                             status={status}
                             label={status === 'run' ? 'Đang hoạt động' : undefined}
-                            className="px-3 py-1.5 font-medium text-white text-sm"
+                            className="px-3 py-1.5 font-medium text-sm"
                         />
                         <span className="pl-3 border-line border-l min-w-0 text-subText text-sm">{area.title}</span>
                     </div>

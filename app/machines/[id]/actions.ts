@@ -85,7 +85,7 @@ export async function stopOrder(id: string): Promise<Result> {
     return done(error);
 }
 
-/** Xoá 1 lệnh đang chờ, các lệnh sau dời lên. */
+/** Xoá hẳn 1 lệnh (chờ hoặc đang Hoạt động), các lệnh sau dời lên. */
 export async function deleteOrder(id: string, orderId: number): Promise<Result> {
     if (!Number.isSafeInteger(orderId)) return invalid;
     const supabase = await createClient();
