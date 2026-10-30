@@ -1,7 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "next-dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 },
-    { "name": "video-demo", "runtimeExecutable": "cmd", "runtimeArgs": ["/c", "cd /d C:/Users/trung/AppData/Local/Temp/claude/D--Workspace-tbs-control/233972e8-6702-4a07-8926-be9edfad9862/scratchpad/wt && node node_modules/next/dist/bin/next dev -p 3100"], "port": 3100 }
+    { "name": "next-dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 }
   ]
 }
