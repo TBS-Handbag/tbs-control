@@ -185,25 +185,10 @@ export function OrderQueue({ machineId, previous, current, queue }: Props) {
                                                 </span>
                                             </div>
                                             {o.running ? (
-                                                // màn hẹp không đủ chỗ cho 3 nút thì cả cụm xuống dòng, giữ chỗ cho mã lệnh
-                                                <div className="flex items-center gap-2.5 ml-auto shrink-0">
-                                                    {/* nền xanh của hàng chỉ là tín hiệu nhìn, đọc trạng thái cho trình đọc màn hình */}
-                                                    <span className="sr-only">Đang Hoạt động</span>
-                                                    <ExtendOrderDialog machineId={machineId} order={o} />
-                                                    <Button
-                                                        ref={stopBtn}
-                                                        type="button"
-                                                        variant="outline"
-                                                        aria-label={`Dừng sớm lệnh ${o.code}`}
-                                                        onClick={(e) =>
-                                                            ask({ code: o.code, next: queue[0]?.code }, e.currentTarget)
-                                                        }
-                                                        className="gap-1.5 bg-card hover:bg-stop-cell px-3 border-stop-line rounded-full h-9 [&_svg]:size-4 font-semibold text-stop-fg hover:text-stop-fg shrink-0"
-                                                    >
-                                                        <LuCircleStop aria-hidden="true" />
-                                                        {/* chữ ngắn để màn 320px không cắt mã lệnh; aria-label đã đủ nghĩa */}
-                                                        Dừng
-                                                    </Button>
+                                                <>
+                                                    <span className="bg-run px-2.5 py-1 rounded-full font-semibold text-white text-xs shrink-0">
+                                                        Hoạt động
+                                                    </span>
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
@@ -224,7 +209,27 @@ export function OrderQueue({ machineId, previous, current, queue }: Props) {
                                                     >
                                                         <LuTrash2 aria-hidden="true" />
                                                     </Button>
-                                                </div>
+                                                    {/* basis-full đẩy 2 nút chính xuống hàng riêng: to, có chữ, ngón tay to vẫn bấm trúng */}
+                                                    <div className="flex gap-2.5 basis-full">
+                                                        <Button
+                                                            ref={stopBtn}
+                                                            type="button"
+                                                            aria-label={`Lệnh ${o.code} xong sớm hơn dự kiến, dừng lệnh`}
+                                                            onClick={(e) =>
+                                                                ask({ code: o.code, next: queue[0]?.code }, e.currentTarget)
+                                                            }
+                                                            className="flex-1 gap-2 bg-main hover:bg-main/90 rounded-full h-12 [&_svg]:size-5 font-semibold text-white text-base"
+                                                        >
+                                                            <LuCircleStop aria-hidden="true" />
+                                                            Sớm hơn DK
+                                                        </Button>
+                                                        <ExtendOrderDialog
+                                                            machineId={machineId}
+                                                            order={o}
+                                                            className="flex-1 h-12"
+                                                        />
+                                                    </div>
+                                                </>
                                             ) : (
                                                 <>
                                                     <span className="tabular-nums text-subText text-sm shrink-0">

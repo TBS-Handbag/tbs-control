@@ -21,6 +21,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { TimeField } from '@/components/ui/time-field';
 import { type Order, formatDateTime } from '@/lib/data/machines';
+import { cn } from '@/lib/utils';
 
 // lệnh phải xong trước 22:00; phần hàng chờ bị lùi theo thì server (extend_order) kiểm và báo giờ muộn nhất
 const DEADLINE = 22 * 60;
@@ -35,21 +36,24 @@ type Props = {
 };
 
 /** Nút + dialog "Thêm giờ": lệnh chạy quá giờ dự kiến thì dời giờ kết thúc, hàng chờ lùi theo. */
-export function ExtendOrderDialog({ machineId, order }: Props) {
+export function ExtendOrderDialog({ machineId, order, className }: Props & { className?: string }) {
     const [open, setOpen] = useState(false);
     const [announce, setAnnounce] = useState('');
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
+                    {/* có chữ, không để icon trơn: công nhân không đoán được icon đồng hồ là gì */}
                     <Button
                         type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Thêm giờ lệnh ${order.code}`}
-                        className="rounded-full size-9 text-main hover:text-main shrink-0"
+                        aria-label={`Lệnh ${order.code} xong trễ hơn dự kiến, thêm giờ`}
+                        className={cn(
+                            'gap-2 bg-stop hover:bg-stop/90 px-4 rounded-full h-11 [&_svg]:size-5 font-semibold text-stop-on text-base shrink-0',
+                            className,
+                        )}
                     >
                         <LuAlarmClockPlus aria-hidden="true" />
+                        Trễ hơn DK
                     </Button>
                 </DialogTrigger>
                 <DialogContent showCloseButton={false} className="rounded-2xl">
