@@ -5,17 +5,13 @@
 // Auth bằng service account, sheet phải share quyền Editor cho GOOGLE_CLIENT_EMAIL.
 import { createSign } from 'node:crypto';
 import { cacheLife, cacheTag } from 'next/cache';
-import type { Area, WorkerRole } from '@/lib/data/machines';
+import { fromVn, toVn, type Area, type WorkerRole } from '@/lib/data/machines';
+
+export { fromVn, toVn };
 
 type Tab = 'machines' | 'orders' | 'workers';
 
 const BASE = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}`;
-const VN = 7 * 3600_000;
-
-/** ms -> "2026-10-28T06:00" giờ VN (VN không có DST nên cộng cứng +7) */
-export const toVn = (ms: number) => new Date(ms + VN).toISOString().slice(0, 16);
-/** "2026-10-28T06:00" giờ VN -> ms */
-export const fromVn = (s: string) => Date.parse(`${s}+07:00`);
 
 let token: { value: string; exp: number } | null = null;
 

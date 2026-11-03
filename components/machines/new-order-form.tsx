@@ -11,7 +11,7 @@ import { cardClass } from '@/components/machines/detail-section';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { TimeField } from '@/components/ui/time-field';
-import { formatDateTime } from '@/lib/data/machines';
+import { formatDateTime, fromVn, skipLunch, toVn, workMs } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 
 // lệnh phải kết thúc muộn nhất 22:00 ngày bắt đầu; server (create_order) cũng chặn
@@ -26,7 +26,8 @@ const makeSchema = (chainStart?: string) =>
         const issue = (path: keyof typeof v, message: string) =>
             ctx.addIssue({ code: 'custom', path: [path], message });
         if (chainStart) {
-            const max = DEADLINE - minutes(chainStart.slice(11, 16));
+            // thời lượng làm việc tới 22:00, không tính nghỉ trưa
+            const max = workMs(fromVn(chainStart), fromVn(`${chainStart.slice(0, 10)}T22:00`)) / 60000;
             if (max <= 0) issue('duration', 'Đã quá 22:00, không tạo thêm lệnh trong ngày');
             else if (!v.duration) issue('duration', 'Nhập thời lượng');
             else if (v.duration === '00:00:00') issue('duration', 'Thời lượng phải lớn hơn 0');
@@ -55,8 +56,10 @@ type Props = {
     onClose: () => void;
 };
 
-export function NewOrderForm({ machineId, chainStart, onClose }: Props) {
+export function NewOrderForm({ machineId, chainStart: lastEnd, onClose }: Props) {
     const titleId = useId();
+    // lệnh cuối kết thúc trong giờ nghỉ trưa thì lệnh mới bắt đầu 12:30 (server createOrder cũng dời như vậy)
+    const chainStart = lastEnd && toVn(skipLunch(fromVn(lastEnd)));
     const form = useForm({
         resolver: zodResolver(makeSchema(chainStart)),
         // máy trống: giờ bắt đầu mặc định là phút hiện tại, người dùng sửa được

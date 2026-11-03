@@ -2,7 +2,7 @@
 
 import { revalidatePath, updateTag } from 'next/cache';
 import { z } from 'zod';
-import { PERSON_NAME } from '@/lib/data/machines';
+import { addWork, PERSON_NAME, skipLunch, workMs } from '@/lib/data/machines';
 import { commit, fromVn, orderCode, readSheet, toVn, type OrderRow, type Sheet } from '@/lib/data/sheet';
 
 type Result = { error?: string };
@@ -24,7 +24,14 @@ const hhmm = (ms: number) => toVn(ms).slice(11, 16);
 /** Mọi lệnh phải xong trước 22:00 (giờ VN) của ngày bắt đầu */
 const deadline = (ms: number) => fromVn(`${dayVn(ms)}T22:00`);
 const orderValues = (o: OrderRow) => [o.id, o.machine, o.day, o.seq, toVn(o.start), toVn(o.end)];
-const shift = (o: OrderRow, ms: number) => ({ row: o.row, values: orderValues({ ...o, start: o.start + ms, end: o.end + ms }) });
+const toUpdate = (o: OrderRow) => ({ row: o.row, values: orderValues(o) });
+/** Xếp các lệnh liền nhau từ `from`, giữ thời lượng làm việc (bỏ nghỉ trưa) của từng lệnh. */
+const rechain = (list: OrderRow[], from: number) =>
+    list.map((o) => {
+        const start = skipLunch(from);
+        from = addWork(start, workMs(o.start, o.end));
+        return { ...o, start, end: from };
+    });
 
 const invalid: Result = { error: 'Dữ liệu không hợp lệ' };
 
@@ -101,14 +108,16 @@ export async function createOrder(id: string, input: z.input<typeof orderInput>)
         const now = Date.now();
         // Lệnh nối liền: máy còn lệnh thì bắt đầu ngay khi lệnh cuối kết thúc, máy trống thì ở giờ người dùng chọn.
         const last = mine.filter((o) => o.end > now).at(-1);
-        const start = last ? last.end : floorMin(range ? fromVn(`${dayVn(now)}T${v.start.slice(0, 5)}`) : now);
-        const end = start + duration;
+        const base = last ? last.end : floorMin(range ? fromVn(`${dayVn(now)}T${v.start.slice(0, 5)}`) : now);
+        // chọn giờ thì giữ đúng giờ người dùng nhập; nhập thời lượng thì không tính nghỉ trưa
+        const start = range ? base : skipLunch(base);
+        const end = range ? start + duration : addWork(start, duration);
         if (end <= now) return 'Giờ kết thúc đã qua, chọn giờ muộn hơn';
 
         const dl = deadline(start);
         if (start >= dl) return 'Đã quá 22:00, không tạo thêm lệnh trong ngày';
         if (end > dl) {
-            const max = (dl - start) / MIN;
+            const max = workMs(start, dl) / MIN;
             return `Lệnh phải kết thúc trước 22:00, thời lượng tối đa ${Math.floor(max / 60)}:${String(max % 60).padStart(2, '0')}`;
         }
 
@@ -132,7 +141,7 @@ export async function stopOrder(id: string): Promise<Result> {
         const cur = mine.find((o) => o.start <= now && o.end > now);
         if (!cur) return;
         const stop = Math.max(floorMin(now), cur.start);
-        const after = mine.filter((o) => o.start >= cur.end).map((o) => shift(o, stop - cur.end));
+        const after = rechain(mine.filter((o) => o.start >= cur.end), stop).map(toUpdate);
         await commit(
             'orders',
             stop === cur.start
@@ -158,19 +167,16 @@ export async function extendOrder(id: string, orderId: number, end: string): Pro
         if (newEnd <= o.end) return `Giờ kết thúc mới phải sau ${hhmm(o.end)}`;
 
         const after = mine.filter((x) => x.start >= o.end);
-        const next = after.length ? after[0].start : newEnd;
-        const last = after.length ? Math.max(...after.map((x) => x.end)) : -Infinity;
-        // lệnh sau cách một khoảng trống thì chỉ lùi phần bị đè
-        const delta = Math.max(newEnd - next, 0);
+        // lệnh sau cách một khoảng trống thì chỉ lùi khi bị đè
+        const moved = after.length && newEnd > after[0].start ? rechain(after, newEnd) : [];
         const dl = deadline(o.start);
-        if (Math.max(newEnd, last + delta) > dl) {
-            const span = after.length ? Math.max(last - after[0].start, 0) : 0;
-            return `Cả hàng chờ phải xong trước 22:00, giờ kết thúc muộn nhất ${hhmm(dl - span)}`;
+        if (Math.max(newEnd, ...moved.map((x) => x.end)) > dl) {
+            // shortcut: không cộng lại nghỉ trưa nếu giờ muộn nhất lùi về trước 12:30, hàng chờ dài cỡ đó thì tính lùi chính xác
+            const work = after.reduce((n, x) => n + workMs(x.start, x.end), 0);
+            return `Cả hàng chờ phải xong trước 22:00, giờ kết thúc muộn nhất ${hhmm(dl - work)}`;
         }
 
-        await commit('orders', {
-            update: [...after.map((x) => shift(x, delta)), { row: o.row, values: orderValues({ ...o, end: newEnd }) }],
-        });
+        await commit('orders', { update: [...moved.map(toUpdate), toUpdate({ ...o, end: newEnd })] });
     });
 }
 
@@ -185,7 +191,7 @@ export async function deleteOrder(id: string, orderId: number): Promise<Result> 
         if (o.end <= now) return `Lệnh ${orderCode(o.seq)} đã kết thúc`;
         // lệnh đang Hoạt động thì lệnh sau bắt đầu từ phút hiện tại, lệnh chờ thì từ giờ bắt đầu của nó
         const from = Math.max(floorMin(now), o.start);
-        const after = mine.filter((x) => x.start >= o.end).map((x) => shift(x, from - o.end));
+        const after = rechain(mine.filter((x) => x.start >= o.end), from).map(toUpdate);
         await commit('orders', { update: after, remove: [o.row] });
     });
 }

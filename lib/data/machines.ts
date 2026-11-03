@@ -59,8 +59,51 @@ export function formatDateTime(s?: string) {
     return { time: s.slice(11, 16), date: `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` };
 }
 
+const HOUR = 3_600_000;
+const DAY = 24 * HOUR;
+const VN = 7 * HOUR;
+// nghỉ trưa 11:30–12:30 giờ VN, không tính vào thời lượng lệnh
+const LUNCH_FROM = 11.5 * HOUR;
+const LUNCH_TO = 12.5 * HOUR;
+
+/** ms -> "2026-10-28T06:00" giờ VN (VN không có DST nên cộng cứng +7) */
+export const toVn = (ms: number) => new Date(ms + VN).toISOString().slice(0, 16);
+/** "2026-10-28T06:00" giờ VN -> ms */
+export const fromVn = (s: string) => Date.parse(`${s}+07:00`);
+/** 0h giờ VN của ngày chứa `ms` */
+const vnDay = (ms: number) => Math.floor((ms + VN) / DAY) * DAY - VN;
+
+/** Phần nghỉ trưa nằm trong [start, end) */
+function lunchIn(start: number, end: number) {
+    let sum = 0;
+    for (let d = vnDay(start); d < end; d += DAY)
+        sum += Math.max(0, Math.min(end, d + LUNCH_TO) - Math.max(start, d + LUNCH_FROM));
+    return sum;
+}
+
+/** Đang trong giờ nghỉ trưa thì dời tới 12:30 */
+export const skipLunch = (ms: number) => {
+    const t = ms - vnDay(ms);
+    return t >= LUNCH_FROM && t < LUNCH_TO ? vnDay(ms) + LUNCH_TO : ms;
+};
+
+/** Thời gian làm việc trong [start, end), bỏ nghỉ trưa */
+export const workMs = (start: number, end: number) => end - start - lunchIn(start, end);
+
+/** Giờ kết thúc khi chạy `ms` thời gian làm việc từ `start`, bỏ qua nghỉ trưa */
+export function addWork(start: number, ms: number) {
+    let end = start + ms;
+    // ô giờ hỏng trên sheet cho ra NaN; NaN !== NaN nên vòng lặp dưới sẽ chạy mãi
+    if (Number.isNaN(end)) return NaN;
+    for (let prev = NaN; end !== prev; ) {
+        prev = end;
+        end = start + ms + lunchIn(start, end);
+    }
+    return end;
+}
+
 export function formatDuration(start: string, end: string) {
-    const total = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
+    const total = Math.round(workMs(fromVn(start), fromVn(end)) / 60000);
     if (!(total > 0)) return '—';
     const h = Math.floor(total / 60);
     const m = total % 60;

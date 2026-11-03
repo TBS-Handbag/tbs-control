@@ -21,7 +21,8 @@ function Worker({ icon: Icon, label, names }: { icon: typeof LuClipboardCheck; l
 
 export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
     const next = m.queue[0];
-    const s = STATUS_STYLE[statusOf(m)];
+    const status = statusOf(m);
+    const s = STATUS_STYLE[status];
     return (
         <article
             aria-label={`${m.name}: ${s.label.toLowerCase()}`}
@@ -29,7 +30,19 @@ export function MachineTile({ m, compact }: { m: Machine; compact?: boolean }) {
         >
             <div className={cn('flex items-center gap-2 px-3 min-w-0 shrink-0', compact ? 'py-1' : 'py-1.5', s.band)}>
                 <h3 className="flex-1 min-w-0 font-extrabold text-xl truncate">{m.name}</h3>
-                <span className={cn('px-2.5 rounded-full font-extrabold tabular-nums text-lg shrink-0', s.chip)}>
+                <span
+                    className={cn(
+                        'relative isolate px-2.5 rounded-full font-extrabold tabular-nums text-lg shrink-0',
+                        s.chip,
+                    )}
+                >
+                    {/* Hết lệnh chờ (vàng): vệt lan để quản đốc chú ý xếp lệnh tiếp */}
+                    {status === 'idle' && (
+                        <span
+                            aria-hidden="true"
+                            className="-z-10 absolute inset-0 bg-idle-on rounded-full motion-safe:animate-alert"
+                        />
+                    )}
                     {m.queue.length} chờ
                 </span>
             </div>

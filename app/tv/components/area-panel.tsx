@@ -48,7 +48,14 @@ export function AreaPanel({
                         label={`${s.stop} Nhàn rỗi`}
                         className="px-3 font-bold text-lg"
                     /> */}
-                    <span className="bg-zone px-3 py-1 rounded-full font-bold text-mainText text-lg shrink-0">
+                    <span className="isolate relative bg-zone px-3 py-1 rounded-full font-bold text-mainText text-lg shrink-0">
+                        {/* cả khu vực hết lệnh chờ: vệt lan cảnh báo */}
+                        {s.queued === 0 && (
+                            <span
+                                aria-hidden="true"
+                                className="-z-10 absolute inset-0 bg-zone rounded-full motion-safe:animate-alert"
+                            />
+                        )}
                         <span className="mr-1 text-xl">{s.queued}</span> lệnh chờ
                     </span>
                 </div>

@@ -111,6 +111,13 @@ export default {
                     '5': c('--chart-5'),
                 },
             },
+            // giống animate-ping nhưng lan ít hơn, để vệt lan không tràn khỏi dải tên máy trên TV
+            keyframes: {
+                alert: { '75%, 100%': { transform: 'scale(1.35, 1.6)', opacity: '0' } },
+            },
+            animation: {
+                alert: 'alert 0.8s cubic-bezier(0, 0, 0.2, 1) infinite',
+            },
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
