@@ -70,6 +70,15 @@ export default {
                 sub1: c('--sub1'),
                 sub2: c('--sub2'),
                 sub3: c('--sub3'),
+                // biểu đồ /dashboard; tên khác `chart` của shadcn
+                dash: {
+                    1: c('--dash-1'),
+                    2: c('--dash-2'),
+                    3: c('--dash-3'),
+                    4: c('--dash-4'),
+                    total: c('--dash-total'),
+                    accent: c('--dash-accent'),
+                },
                 background: c('--background'),
                 foreground: c('--foreground'),
                 card: {

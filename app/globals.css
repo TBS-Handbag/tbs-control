@@ -45,6 +45,13 @@
         --sub1: #e8e5f5;
         --sub2: #8b84b8;
         --sub3: #f5b841;
+        /* biểu đồ /dashboard (nền TV tối): nhóm máy là dải xanh chanh → ngọc → cyan tươi, số liệu tổng màu ấm */
+        --dash-1: #a3e635; /* Chặt thủy lực: xanh chanh */
+        --dash-2: #34d399; /* Trải: xanh ngọc */
+        --dash-3: #22d3ee; /* Bullmer: xanh cyan */
+        --dash-4: #818cf8; /* nhóm dự phòng */
+        --dash-total: #fbbf24; /* số liệu tổng: hổ phách ấm, tương phản với các nhóm xanh */
+        --dash-accent: #9333ea; /* chip khoảng ngày: tím, đủ tương phản với chữ trắng */
 
         /* shadcn tokens map về brand */
         --background: #ffffff;
