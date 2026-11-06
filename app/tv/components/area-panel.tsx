@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { StatusPill } from '@/components/machines/status-pill';
 import { AREAS, type Area, type Machine, stat } from '@/lib/data/machines';
 import { cn } from '@/lib/utils';
 

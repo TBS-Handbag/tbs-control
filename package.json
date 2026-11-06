@@ -3,7 +3,7 @@
   "packageManager": "pnpm@12.10.1",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "eslint . && next build",
     "start": "next start",
     "lint": "eslint ."
   },
