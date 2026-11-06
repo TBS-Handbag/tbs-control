@@ -1,10 +1,8 @@
 name: Deploy Vercel
 
-# Chỉ deploy khi CI trên main pass
+# Deploy thẳng khi push main, không chờ CI: `pnpm build` đã gồm eslint + type-check, build lỗi thì không deploy
 on:
-    workflow_run:
-        workflows: [CI]
-        types: [completed]
+    push:
         branches: [main]
     workflow_dispatch:
 
@@ -14,7 +12,6 @@ concurrency:
 
 jobs:
     deploy:
-        if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
         runs-on: ubuntu-latest
         # Tài khoản Vercel đích: Settings → Secrets and variables → Actions (PROJECT/TEAM để secret hay variable đều được)
         env:
@@ -22,17 +19,35 @@ jobs:
             PROJECT: ${{ vars.VERCEL_PROJECT || secrets.VERCEL_PROJECT }}
             # Project nằm trong team, API không truyền team sẽ 404
             TEAM: ${{ vars.VERCEL_TEAM || secrets.VERCEL_TEAM }}
+            # ghim version để cache được, nâng tay khi cần
+            VERCEL_CLI: 65.10.0
         steps:
             - uses: actions/checkout@v4
-              with:
-                  ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
+            # Phiên bản pnpm lấy từ `packageManager` trong package.json
+            - uses: pnpm/action-setup@v4
+
+            # cache pnpm store: `vercel build` cài deps bằng cùng pnpm nên dùng lại store này
             - uses: actions/setup-node@v4
               with:
                   node-version: 22
+                  cache: pnpm
 
-            # corepack lấy đúng pnpm theo `packageManager` trong package.json
-            - run: corepack enable && npm i -g vercel@latest
+            # build cache của Next, giống Vercel giữ giữa các lần deploy
+            - uses: actions/cache@v4
+              with:
+                  path: .next/cache
+                  key: next-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+                  restore-keys: next-${{ hashFiles('pnpm-lock.yaml') }}-
+
+            - uses: actions/cache@v4
+              id: vercel-cli
+              with:
+                  path: ~/.vercel-cli
+                  key: vercel-cli-${{ env.VERCEL_CLI }}
+            - if: steps.vercel-cli.outputs.cache-hit != 'true'
+              run: npm i -g --prefix ~/.vercel-cli vercel@$VERCEL_CLI
+            - run: echo "$HOME/.vercel-cli/bin" >> "$GITHUB_PATH"
 
             # Tra id theo tên project để khỏi lưu ORG_ID/PROJECT_ID
             - name: Resolve project

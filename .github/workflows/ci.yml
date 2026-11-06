@@ -1,9 +1,8 @@
 name: CI
 
+# Push main đã có deploy-vercel build (gồm lint + type-check), CI chỉ còn để chặn PR
 on:
     pull_request:
-    push:
-        branches: [main]
 
 concurrency:
     group: ci-${{ github.ref }}
