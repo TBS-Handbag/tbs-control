@@ -50,7 +50,7 @@ async function DashboardBoard() {
         // fixed để thoát khung max-w-md của root layout; font gốc scale theo viewport 16:9 (globals.css .tv-screen)
         <main className="z-50 fixed inset-0 flex flex-col gap-4 bg-surface p-4 overflow-hidden text-mainText tv-screen">
             <header className="flex items-center gap-6 bg-card px-6 py-4 border-2 border-white/10 rounded-2xl shrink-0">
-                <h1 className="font-extrabold text-3xl">Thống kê lệnh</h1>
+                <h1 className="font-extrabold text-3xl">Thống kê lệnh CUT</h1>
                 <span className="bg-dash-accent px-4 py-1.5 rounded-full font-bold tabular-nums text-lg">{range}</span>
                 <div className="ml-auto">
                     <TvClock />
