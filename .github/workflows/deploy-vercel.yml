@@ -1,0 +1,53 @@
+name: Deploy Vercel
+
+# Chỉ deploy khi CI trên main pass
+on:
+    workflow_run:
+        workflows: [CI]
+        types: [completed]
+        branches: [main]
+    workflow_dispatch:
+
+concurrency:
+    group: deploy-vercel
+    cancel-in-progress: true
+
+jobs:
+    deploy:
+        if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+        runs-on: ubuntu-latest
+        # Tài khoản Vercel đích: Settings → Secrets and variables → Actions (PROJECT/TEAM để secret hay variable đều được)
+        env:
+            VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+            PROJECT: ${{ vars.VERCEL_PROJECT || secrets.VERCEL_PROJECT }}
+            # Project nằm trong team, API không truyền team sẽ 404
+            TEAM: ${{ vars.VERCEL_TEAM || secrets.VERCEL_TEAM }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            # corepack lấy đúng pnpm theo `packageManager` trong package.json
+            - run: corepack enable && npm i -g vercel@latest
+
+            # Tra id theo tên project để khỏi lưu ORG_ID/PROJECT_ID
+            - name: Resolve project
+              run: |
+                  for v in VERCEL_TOKEN PROJECT TEAM; do
+                    [ -n "${!v}" ] || { echo "::error::Thiếu $v: set secret VERCEL_TOKEN, variables VERCEL_PROJECT và VERCEL_TEAM trong Settings → Secrets and variables → Actions"; exit 1; }
+                  done
+                  res=$(curl -fsS -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com/v9/projects/$PROJECT?slug=$TEAM") \
+                    || { echo "::error::Không thấy project '$PROJECT' trong team '$TEAM' (hoặc thiếu secret VERCEL_TOKEN)"; exit 1; }
+                  echo "VERCEL_ORG_ID=$(jq -r .accountId <<<"$res")" >> "$GITHUB_ENV"
+                  echo "VERCEL_PROJECT_ID=$(jq -r .id <<<"$res")" >> "$GITHUB_ENV"
+
+            # Project Vercel để Root Directory trống (code nằm ở repo root)
+            - run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+            - run: vercel build --prod --token="$VERCEL_TOKEN"
+            # Không gửi git metadata, để Vercel khỏi chặn deploy theo email tác giả commit
+            - run: rm -rf .git
+            - run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"

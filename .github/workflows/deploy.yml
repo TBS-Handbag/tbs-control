@@ -1,0 +1,31 @@
+# Vercel Hobby không deploy repo private của org qua Git integration, nên build ở CI rồi đẩy bản prebuilt bằng Vercel CLI
+name: Deploy Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+env:
+  # không phải bí mật, chỉ là ID; token để trong secret VERCEL_TOKEN
+  VERCEL_ORG_ID: team_DyT3rSREmASGZRgHJKTeLC1q
+  VERCEL_PROJECT_ID: prj_G2ybs7V8EZGrYxkApHmDopzEuBCh
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: npm i -g vercel@latest
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
